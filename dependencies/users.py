@@ -1,29 +1,21 @@
 from datetime import timedelta, datetime
-from typing import Annotated
+from decouple import config
+from dependencies.database import get_db
 from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, SecurityScopes
+from jose import jwt, JWTError
+from models.users import Users
+from passlib.context import CryptContext
+from schemas.users import Token, TokenData, User, UserIn
 from sqlalchemy.orm import Session
 from starlette import status
-from database import SessionLocal
-from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer, SecurityScopes
-from schemas.users import Token, TokenData, User, UserIn
-from jose import jwt, JWTError
-from decouple import config
-from models.users import Users
+from typing import Annotated
 
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='users/token')
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close
 
 
 async def get_current_user(
@@ -70,7 +62,6 @@ def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[User]:
     users = []
     for user in users_db:
         user.scopes = user.scopes.split(',')
-        print('Ussr->', user)
         users.append(User.model_validate(user))
     return users
 
@@ -79,7 +70,8 @@ async def get_current_active_user(
         current_user: Annotated[User, Depends(get_current_user)]
         ):
     if not current_user.activo:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="User Inactive")
     return current_user
 
 
