@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 from typing import Annotated
-from fastapi import Depends, HTTPException, Security
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 from database import SessionLocal
@@ -11,14 +11,11 @@ from jose import jwt, JWTError
 from decouple import config
 from models.users import Users
 
-
-
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='users/token')
-
 
 
 def get_db():
@@ -27,6 +24,7 @@ def get_db():
         yield db
     finally:
         db.close
+
 
 async def get_current_user(
         security_scopes: SecurityScopes,
@@ -76,6 +74,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[User]:
         users.append(User.model_validate(user))
     return users
 
+
 async def get_current_active_user(
         current_user: Annotated[User, Depends(get_current_user)]
         ):
@@ -96,9 +95,9 @@ def get_user_by_username(username: str, db: Session) -> Users:
     user = db.query(Users).filter(Users.username == username).first()
     if user:
         return user
-    
 
-def authenticate_user(username:str, password: str, db: Session) -> Users:
+
+def authenticate_user(username: str, password: str, db: Session) -> Users:
     user = get_user_by_username(username, db)
     if not user:
         return False
@@ -119,12 +118,12 @@ def create_access_token(form_data: dict, db: Session) -> Token:
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                      detail='Usuario y/o Password no validos')
+                            detail='Usuario y/o Password no validos')
     token = encode_token(
         {
-            "username":user.username,
-            "id":user.id_user,
-            "nombre":user.nombre,
+            "username": user.username,
+            "id": user.id_user,
+            "nombre": user.nombre,
             "scopes": user.scopes
         }, timedelta(minutes=20))
     return Token(access_token=token, token_type="bearer")
@@ -132,7 +131,8 @@ def create_access_token(form_data: dict, db: Session) -> Token:
 
 def create_user(user_data: UserIn, db: Session):
     user_data_extra = user_data.__dict__.copy()
-    user_data_extra.update({'password_h': get_password_hash(user_data.password)})
+    user_data_extra.update(
+        {'password_h': get_password_hash(user_data.password)})
     del user_data_extra['password']
     user_data_extra.update({'scopes': ','.join(user_data.scopes)})
     create_user = Users(**user_data_extra)

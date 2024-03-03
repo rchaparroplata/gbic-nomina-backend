@@ -16,9 +16,11 @@ models.users.Base.metadata.create_all(bind=engine)
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_active_user)]
 
+
 @app.get('/')
 def root():
     return {'message': 'Server is running'}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

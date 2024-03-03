@@ -21,14 +21,17 @@ router = APIRouter(
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_active_user)]
 
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def post_create_user(db: db_dependency,
-                      create_user_request: UserIn,
-                      current_user: Annotated[User, Security(get_current_active_user, scopes=["users:write"])]
-):
+                           create_user_request: UserIn,
+                           current_user: Annotated[User, Security(
+                               get_current_active_user,
+                               scopes=["users:write"])]
+                           ):
     db_user = get_user_by_username(create_user_request.username, db)
     if db_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail='Usuario ya existente')
     create_user(create_user_request, db)
 
@@ -39,6 +42,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     token = create_access_token(form_data, db)
     return token
 
+
 @router.get('/me', response_model=User)
 def me(current_user: user_dependency, db: db_dependency):
     if current_user is None:
@@ -46,10 +50,12 @@ def me(current_user: user_dependency, db: db_dependency):
                             detail='Favor de iniciar sesion')
     return current_user
 
+
 @router.get('/', response_model=list[User])
 async def get_all_users(
         db: db_dependency,
-        current_user: Annotated[User, Security(get_current_active_user, scopes=["users:read"])],
+        current_user: Annotated[User, Security(get_current_active_user,
+                                               scopes=["users:read"])],
         skip: int = 0,
         limit: int = 10
 ):
