@@ -4,7 +4,7 @@ from dependencies.database import get_db
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import jwt, JWTError
-from models.users import Users
+from models.users import UserDB
 from passlib.context import CryptContext
 from schemas.users import Token, TokenData, User, UserIn
 from sqlalchemy.orm import Session
@@ -35,9 +35,11 @@ async def get_current_user(
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenData(**payload)
         if token_data.username is None or token_data.id is None:
+            print('MissingData')
             raise credentials_exception
         user = get_user_by_username(token_data.username, db)
         if user is None:
+            print('UserNotFound!')
             raise credentials_exception
         user.scopes = user.scopes.split(',')
         found = False
@@ -49,16 +51,17 @@ async def get_current_user(
             if not found:
                 raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Sin Privilegios",
+                        detail="Sin Privilegios Necesarios",
                         headers={"WWW-Authenticate": authenticate_value},
                     )
         return User(**user.__dict__)
     except JWTError:
+        print('JWTError' + JWTError)
         raise credentials_exception
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[User]:
-    users_db = db.query(Users).offset(skip).limit(limit).all()
+    users_db = db.query(UserDB).offset(skip).limit(limit).all()
     users = []
     for user in users_db:
         user.scopes = user.scopes.split(',')
@@ -83,13 +86,13 @@ def get_password_hash(password):
     return bcrypt_context.hash(password)
 
 
-def get_user_by_username(username: str, db: Session) -> Users:
-    user = db.query(Users).filter(Users.username == username).first()
+def get_user_by_username(username: str, db: Session) -> UserDB:
+    user = db.query(UserDB).filter(UserDB.username == username).first()
     if user:
         return user
 
 
-def authenticate_user(username: str, password: str, db: Session) -> Users:
+def authenticate_user(username: str, password: str, db: Session) -> UserDB:
     user = get_user_by_username(username, db)
     if not user:
         return False
@@ -121,13 +124,14 @@ def create_access_token(form_data: dict, db: Session) -> Token:
     return Token(access_token=token, token_type="bearer")
 
 
-def create_user(user_data: UserIn, db: Session):
+def create_user(user_data: UserIn, db: Session) -> UserDB:
     user_data_extra = user_data.__dict__.copy()
     user_data_extra.update(
         {'password_h': get_password_hash(user_data.password)})
     del user_data_extra['password']
     user_data_extra.update({'scopes': ','.join(user_data.scopes)})
-    create_user = Users(**user_data_extra)
+    create_user = UserDB(**user_data_extra)
     db.add(create_user)
     db.commit()
     db.refresh(create_user)
+    return create_user

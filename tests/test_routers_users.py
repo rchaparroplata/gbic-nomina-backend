@@ -1,11 +1,13 @@
+from dependencies.database import Base, get_db
+from dependencies.users import (
+    create_user,
+    create_access_token
+)
 from fastapi.testclient import TestClient
+from main import app
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import sessionmaker
-from dependencies.database import Base
-from main import app
-from dependencies.database import get_db
-from dependencies.users import get_current_user
-from schemas.users import User
+from schemas.users import UserIn
 
 DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(
@@ -21,45 +23,71 @@ TestingSessionLocal = sessionmaker(autocommit=False,
 
 
 # Dependency to override the get_db dependency in the main app
-def override_get_db():
+def ovrd_get_db():
     database = TestingSessionLocal()
-    yield database
-    database.close()
+    try:
+        yield database
+    finally:
+        database.close()
 
 
-fake_user_data = {
-        'id_user': 1,
-        'username': 'fakeuser',
-        'nombre': 'Fake username',
-        'scopes': ['fake'],
+db_gen = ovrd_get_db()
+theDb = next(db_gen)
+
+writer_user_data = {
+        'username': 'writer',
+        'password': 'IamPassword',
+        'nombre': 'Writer Test User',
+        'scopes': ['users:read', 'users:write'],
         'activo': True
     }
 
+reader_user_data = {
+        'username': 'reader',
+        'password': 'IamPassword',
+        'nombre': 'Reader Test User',
+        'scopes': ['users:read'],
+        'activo': True
+    }
 
-def ovrd_get_current_user(
-        csecurity_scopes=[],
-        token='',
-        db=''
-        ):
-    return User(**fake_user_data)
+inactive_user_data = {
+        'username': 'inactive',
+        'password': 'IamPassword',
+        'nombre': 'Inactive Test User',
+        'scopes': ['noScope'],
+        'activo': False
+    }
 
+access_user_data = {
+        'username': 'access',
+        'password': 'IamPassword',
+        'nombre': 'Inactive Test User',
+        'scopes': ['noScope'],
+        'activo': True
+    }
 
-def ovrd_get_current_user_inactive(
-        security_scopes=[],
-        token='',
-        db=''
-        ):
-    fake_inactive = fake_user_data.copy()
-    fake_inactive.update({'activo': False})
-    return User(**fake_inactive)
-
-
-app.dependency_overrides[get_db] = override_get_db
+admin_user_data = {
+        'username': 'Admin',
+        'password': 'IamPassword',
+        'nombre': 'The Administrator',
+        'scopes': ['Admin'],
+        'activo': True
+    }
+usr_writer = UserIn(**writer_user_data)
+usr_reader = UserIn(**reader_user_data)
+usr_admin = UserIn(**admin_user_data)
+usr_inactive = UserIn(**inactive_user_data)
+usr_access = UserIn(**access_user_data)
 
 
 def setup() -> None:
-    # Create the tables in the test database
     Base.metadata.create_all(bind=engine)
+    app.dependency_overrides[get_db] = ovrd_get_db
+    create_user(usr_admin, theDb)
+    create_user(usr_writer, theDb)
+    create_user(usr_reader, theDb)
+    create_user(usr_inactive, theDb)
+    create_user(usr_access, theDb)
 
 
 def teardown() -> None:
@@ -68,7 +96,6 @@ def teardown() -> None:
 
 
 def test_get_current_user_401():
-    app.dependency_overrides = {}
     with TestClient(app) as client:
         response = client.get('/users/me')
         assert response.status_code == 401
@@ -76,24 +103,52 @@ def test_get_current_user_401():
 
 
 def test_get_current_inactive_user():
-    app.dependency_overrides[get_current_user] = ovrd_get_current_user_inactive
+    inactive_tkn = create_access_token(usr_inactive, theDb).access_token
+    app.dependency_overrides[get_db] = ovrd_get_db
     with TestClient(app) as client:
-        response = client.get('/users/me')
+        response = client.get('/users/me',
+                              headers={
+                                  'Authorization': 'Bearer '+inactive_tkn
+                              })
         assert response.status_code == 400
         assert response.json() == {'detail': 'User Inactive'}
 
 
 def test_get_current_user():
-    app.dependency_overrides[get_current_user] = ovrd_get_current_user
+    reader_tkn = create_access_token(usr_reader, theDb).access_token
     with TestClient(app) as client:
-        response = client.get('/users/me')
+        response = client.get('/users/me',
+                              headers={
+                                  'Authorization': 'Bearer '+reader_tkn
+                              })
         assert response.status_code == 200
-        assert response.json() == fake_user_data
+        res_json = response.json()
+        assert res_json['username'] == reader_user_data['username']
+        assert res_json['nombre'] == reader_user_data['nombre']
+        assert res_json['activo'] == reader_user_data['activo']
 
 
 def test_get_all_users_401():
-    app.dependency_overrides = {}
     with TestClient(app) as client:
         response = client.get('/users')
         assert response.status_code == 401
         assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_get_user_token():
+    with TestClient(app) as client:
+        response = client.post('/users/token', data={
+            "username": admin_user_data.get('username'),
+            "password": admin_user_data.get('password')})
+        assert response.status_code == 200
+
+
+def test_get_all_users_no_scope():
+    access_tkn = create_access_token(usr_access, theDb).access_token
+    with TestClient(app) as client:
+        response = client.get('/users',
+                              headers={
+                                  'Authorization': 'Bearer '+access_tkn
+                              })
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Sin Privilegios Necesarios'}

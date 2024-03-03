@@ -5,6 +5,7 @@ class UserBase(BaseModel):
     username: str
     nombre: str
     scopes: list[str]
+    activo: bool = True
 
 
 class UserIn(UserBase):
@@ -26,7 +27,6 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
     id_user: int
-    activo: bool = True
 
 
 class UserInDB(User):
