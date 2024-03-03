@@ -139,14 +139,3 @@ def create_user(user_data: UserIn, db: Session):
     db.add(create_user)
     db.commit()
     db.refresh(create_user)
-
-
-
-
-
-
-
-
-
-
-
