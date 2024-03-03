@@ -1,6 +1,6 @@
 import uvicorn
-from database import engine, SessionLocal
-from fastapi import Depends, FastAPI, HTTPException, status
+from database import engine
+from fastapi import Depends, FastAPI
 from typing import Annotated
 from sqlalchemy.orm import Session
 from routers.users import router as users_router
