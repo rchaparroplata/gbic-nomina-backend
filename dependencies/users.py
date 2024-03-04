@@ -29,17 +29,20 @@ async def get_current_user(
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+        headers={"WWW-Authenticate": authenticate_value},
+    )
+    scope_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Sin Privilegios Necesarios",
+        headers={"WWW-Authenticate": authenticate_value},
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenData(**payload)
         if token_data.username is None or token_data.id is None:
-            print('MissingData')
             raise credentials_exception
         user = get_user_by_username(token_data.username, db)
         if user is None:
-            print('UserNotFound!')
             raise credentials_exception
         user.scopes = user.scopes.split(',')
         found = False
@@ -49,14 +52,9 @@ async def get_current_user(
                     found = True
                     continue
             if not found:
-                raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Sin Privilegios Necesarios",
-                        headers={"WWW-Authenticate": authenticate_value},
-                    )
+                raise scope_exception
         return User(**user.__dict__)
     except JWTError:
-        print('JWTError' + JWTError)
         raise credentials_exception
 
 
@@ -74,7 +72,7 @@ async def get_current_active_user(
         ):
     if not current_user.activo:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="User Inactive")
+                            detail="Usuario Desactivado")
     return current_user
 
 
