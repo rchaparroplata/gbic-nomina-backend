@@ -44,7 +44,6 @@ async def get_current_user(
         user = get_user_by_username(token_data.username, db)
         if user is None:
             raise credentials_exception
-        user.scopes = user.scopes.split(',')
         found = False
         if 'Admin' not in user.scopes and len(security_scopes.scopes) != 0:
             for scope in security_scopes.scopes:
@@ -53,7 +52,7 @@ async def get_current_user(
                     continue
             if not found:
                 raise scope_exception
-        return User(**user.__dict__)
+        return User.model_validate(user)
     except JWTError:
         raise credentials_exception
 
@@ -62,7 +61,6 @@ def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[User]:
     users_db = db.query(UserDB).offset(skip).limit(limit).all()
     users = []
     for user in users_db:
-        user.scopes = user.scopes.split(',')
         users.append(User.model_validate(user))
     return users
 

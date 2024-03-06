@@ -167,11 +167,11 @@ def test_get_all_users_no_scope():
 
 
 def test_get_all_users():
-    access_tkn = create_access_token(usr_reader, theDb).access_token
+    reader_tkn = create_access_token(usr_reader, theDb).access_token
     with TestClient(app) as client:
         response = client.get('/users',
                               headers={
-                                  'Authorization': 'Bearer '+access_tkn
+                                  'Authorization': 'Bearer '+reader_tkn
                               })
         assert response.status_code == 200
         res_json = response.json()
@@ -179,11 +179,11 @@ def test_get_all_users():
 
 
 def test_get_all_users_limit():
-    access_tkn = create_access_token(usr_reader, theDb).access_token
+    reader_tkn = create_access_token(usr_reader, theDb).access_token
     with TestClient(app) as client:
         response = client.get('/users?limit=2',
                               headers={
-                                  'Authorization': 'Bearer '+access_tkn
+                                  'Authorization': 'Bearer '+reader_tkn
                               })
         assert response.status_code == 200
         res_json = response.json()
@@ -191,19 +191,57 @@ def test_get_all_users_limit():
 
 
 def test_get_all_users_admin():
-    access_tkn = create_access_token(usr_admin, theDb).access_token
+    admin_tkn = create_access_token(usr_admin, theDb).access_token
     with TestClient(app) as client:
         response = client.get('/users',
                               headers={
-                                  'Authorization': 'Bearer '+access_tkn
+                                  'Authorization': 'Bearer '+admin_tkn
                               })
         assert response.status_code == 200
         res_json = response.json()
         assert len(res_json) == 6
 
 
+def test_create_user_401():
+    with TestClient(app) as client:
+        response = client.post('/users')
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Not authenticated'}
+
+
 def test_create_user():
-    pass
+    writer_tkn = create_access_token(usr_writer, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/users',
+                               headers={
+                                  'Authorization': 'Bearer '+writer_tkn
+                                  },
+                               json={
+                                  'username': 'UserNew',
+                                  'nombre': 'Usuario New',
+                                  'password': 'EsUnSecreto',
+                                  'scopes': ['empty']
+                                })
+        assert response.status_code == 201
+        res_json = response.json()
+        assert res_json['username'] == 'UserNew'
+
+
+def test_create_user_missing_field():
+    writer_tkn = create_access_token(usr_writer, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/users',
+                               headers={
+                                  'Authorization': 'Bearer '+writer_tkn
+                                  },
+                               json={
+                                  'nombre': 'Usuario New',
+                                  'scopes': ['empty']
+                                })
+        assert response.status_code == 422
+        res_json = response.json()
+        assert res_json['detail'][0]['msg'] == 'Field required'
+        assert res_json['detail'][0]['loc'] == ['body', 'username']
 
 
 def test_deactivate_user():
@@ -248,11 +286,38 @@ def test_valid_token_invalid_user():
 
 
 def test_create_existing_user():
-    pass
+    writer_tkn = create_access_token(usr_writer, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/users',
+                               headers={
+                                  'Authorization': 'Bearer '+writer_tkn
+                                  },
+                               json={
+                                  'username': 'Admin',
+                                  'nombre': 'Usuario New',
+                                  'password': 'EsUnSecreto',
+                                  'scopes': ['empty']
+                                })
+        assert response.status_code == 400
+        res_json = response.json()
+        assert res_json['detail'] == 'Usuario ya existente'
 
 
 def test_create_user_no_scope():
-    pass
+    access_tkn = create_access_token(usr_access, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/users',
+                               headers={
+                                  'Authorization': 'Bearer '+access_tkn
+                               },
+                               json={
+                                  'username': 'UserNew',
+                                  'nombre': 'Usuario New',
+                                  'password': 'EsUnSecreto',
+                                  'scopes': ['empty']
+                                })
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_edit_user():

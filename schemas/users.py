@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class UserBase(BaseModel):
@@ -25,6 +25,12 @@ class TokenData(BaseModel):
 
 class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator('scopes', mode='before')
+    def split_str(cls, v):
+        if isinstance(v, str):
+            return v.split(',')
+        return v
 
     id_user: int
 
