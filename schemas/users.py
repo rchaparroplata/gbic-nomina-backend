@@ -12,6 +12,10 @@ class UserIn(UserBase):
     password: str
 
 
+class UserUpdate(UserIn):
+    password: str | None = None
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -33,7 +37,3 @@ class User(UserBase):
         return v
 
     id_user: int
-
-
-class UserInDB(User):
-    password_h: str

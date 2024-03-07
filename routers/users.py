@@ -2,13 +2,13 @@ from dependencies.database import get_db
 from dependencies.users import (
     create_access_token,
     create_user,
+    edit_user,
     get_current_active_user,
-    get_user_by_username,
     get_users
 )
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, Security
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas.users import UserIn, Token, User
+from schemas.users import UserIn, UserUpdate, Token, User
 from starlette import status
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -22,19 +22,31 @@ db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_active_user)]
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=User)
 async def post_create_user(db: db_dependency,
                            create_user_request: UserIn,
                            current_user: Annotated[User, Security(
                                get_current_active_user,
-                               scopes=["users:write"])]
-                           ) -> User:
-    db_user = get_user_by_username(create_user_request.username, db)
-    if db_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail='Usuario ya existente')
+                               scopes=["users:write"]
+                                )]
+                           ):
     new_user = create_user(create_user_request, db)
     return User.model_validate(new_user)
+
+
+@router.put('/{id_user}',
+            status_code=status.HTTP_202_ACCEPTED,
+            response_model=User)
+async def put_edit_user(db: db_dependency,
+                        edit_user_request: UserUpdate,
+                        current_user: Annotated[User, Security(
+                            get_current_active_user,
+                            scopes=['users:write']
+                        )],
+                        id_user: int
+                        ):
+    edited_user = edit_user(id_user, edit_user_request, db)
+    return User.model_validate(edited_user)
 
 
 @router.post('/token', response_model=Token)
@@ -46,9 +58,6 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 
 @router.get('/me', response_model=User)
 def me(current_user: user_dependency, db: db_dependency):
-    if current_user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Favor de iniciar sesion')
     return current_user
 
 

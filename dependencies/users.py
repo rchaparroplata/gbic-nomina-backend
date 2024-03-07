@@ -121,7 +121,11 @@ def create_access_token(form_data: dict, db: Session) -> Token:
 
 
 def create_user(user_data: UserIn, db: Session) -> UserDB:
-    user_data_extra = user_data.__dict__.copy()
+    db_user = get_user_by_username(user_data.username, db)
+    if db_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='Usuario ya existente')
+    user_data_extra = user_data.model_dump()
     user_data_extra.update(
         {'password_h': get_password_hash(user_data.password)})
     del user_data_extra['password']
@@ -131,3 +135,22 @@ def create_user(user_data: UserIn, db: Session) -> UserDB:
     db.commit()
     db.refresh(create_user)
     return create_user
+
+
+def edit_user(id_user: int, user_data: UserIn, db: Session) -> UserDB:
+    db_query = db.query(UserDB).filter(UserDB.id_user == id_user)
+    db_user = db_query.first()
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f'Usuario con id: {id_user} no encontrado')
+    updated_data = user_data.model_dump(exclude_unset=True)
+    if user_data.password:
+        updated_data.update(
+             {'password_h': get_password_hash(user_data.password)}
+        )
+        del updated_data['password']
+    updated_data.update({'scopes': ','.join(user_data.scopes)})
+    db_query.update(updated_data)
+    db.commit()
+    db.refresh(db_user)
+    return db_user

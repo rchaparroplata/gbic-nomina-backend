@@ -259,6 +259,7 @@ def test_deactivate_user():
         theDb.query(UserDB)\
             .filter(UserDB.username == access2_user_data['username'])\
             .update({'activo': False})
+        theDb.commit()
         # Get /Me
         response = client.get('/users/me',
                               headers={
@@ -325,4 +326,8 @@ def test_edit_user():
 
 
 def test_edit_user_no_scope():
+    pass
+
+
+def test_edit_user_non_exist():
     pass
