@@ -322,12 +322,90 @@ def test_create_user_no_scope():
 
 
 def test_edit_user():
-    pass
+    writer_tkn = create_access_token(usr_writer, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/users/5',
+                              headers={
+                                  'Authorization': 'Bearer '+writer_tkn
+                              },
+                              json={
+                                  'username': 'EditedUsername',
+                                  'nombre': 'Edited User',
+                                  'password': 'EsNuevoUnSecreto',
+                                  'scopes': ['empty'],
+                                  'activo': True
+                              })
+        assert response.status_code == 202
+        res_json = response.json()
+        assert res_json['username'] == 'EditedUsername'
+
+
+def test_edit_user_no_password():
+    writer_tkn = create_access_token(usr_writer, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/users/5',
+                              headers={
+                                  'Authorization': 'Bearer '+writer_tkn
+                              },
+                              json={
+                                  'username': 'EditedUsernameAgain',
+                                  'nombre': 'Edited User',
+                                  'scopes': ['empty'],
+                                  'activo': True
+                              })
+        assert response.status_code == 202
+        res_json = response.json()
+        assert res_json['username'] == 'EditedUsernameAgain'
+
+
+def test_edit_admin_not_allowed():
+    writer_tkn = create_access_token(usr_writer, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/users/1',
+                              headers={
+                                  'Authorization': 'Bearer '+writer_tkn
+                              },
+                              json={
+                                  'username': 'Whatever',
+                                  'nombre': 'Edited User',
+                                  'scopes': ['empty'],
+                                  'activo': True
+                              })
+        assert response.status_code == 400
+        res_json = response.json()
+        assert res_json == {'detail': 'No puedes editar al Administardor'}
 
 
 def test_edit_user_no_scope():
-    pass
+    reader_tkn = create_access_token(usr_reader, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/users/5',
+                              headers={
+                                  'Authorization': 'Bearer '+reader_tkn
+                              },
+                              json={
+                                  'username': 'Whatever',
+                                  'nombre': 'Edited User',
+                                  'scopes': ['empty'],
+                                  'activo': True
+                              })
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_edit_user_non_exist():
-    pass
+    writer_tkn = create_access_token(usr_writer, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/users/100',
+                              headers={
+                                  'Authorization': 'Bearer '+writer_tkn
+                              },
+                              json={
+                                  'username': 'Whatever',
+                                  'nombre': 'Edited User',
+                                  'scopes': ['empty'],
+                                  'activo': True
+                              })
+        assert response.status_code == 400
+        res_json = response.json()
+        assert res_json == {'detail': 'Usuario con id: 100 no encontrado'}

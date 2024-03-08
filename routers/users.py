@@ -6,7 +6,7 @@ from dependencies.users import (
     get_current_active_user,
     get_users
 )
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas.users import UserIn, UserUpdate, Token, User
 from starlette import status
@@ -45,6 +45,9 @@ async def put_edit_user(db: db_dependency,
                         )],
                         id_user: int
                         ):
+    if id_user == 1 and current_user.id_user != 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='No puedes editar al Administardor')
     edited_user = edit_user(id_user, edit_user_request, db)
     return User.model_validate(edited_user)
 
