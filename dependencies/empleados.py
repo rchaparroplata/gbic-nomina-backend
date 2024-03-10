@@ -43,6 +43,18 @@ def edit_empleado(id_emp: int,
     if not empleado_db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Empleado con id: {id_emp} no encontrado')
+    emp_rfc = db.query(EmpleadoDB)\
+        .filter((EmpleadoDB.rfc == empleado_data.rfc)
+                & (EmpleadoDB.id_empleado != id_emp)).first()
+    if emp_rfc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='RFC ya registrado')
+    emp_curp = db.query(EmpleadoDB)\
+        .filter((EmpleadoDB.curp == empleado_data.curp)
+                & (EmpleadoDB.id_empleado != id_emp)).first()
+    if emp_curp:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='CURP ya registrado')
     edited_data = empleado_data.model_dump(exclude_unset=True)
     for key, value in edited_data.items():
         setattr(empleado_db, key, value)

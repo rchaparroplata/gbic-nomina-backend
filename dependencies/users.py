@@ -140,8 +140,7 @@ def create_user(user_data: UserIn, db: Session) -> UserDB:
 
 
 def edit_user(id_user: int, user_data: UserIn, db: Session) -> UserDB:
-    db_query = db.query(UserDB).filter(UserDB.id_user == id_user)
-    db_user = db_query.first()
+    db_user = db.query(UserDB).filter(UserDB.id_user == id_user).first()
     if not db_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Usuario con id: {id_user} no encontrado')
@@ -152,7 +151,9 @@ def edit_user(id_user: int, user_data: UserIn, db: Session) -> UserDB:
         )
         del updated_data['password']
     updated_data.update({'scopes': ','.join(user_data.scopes)})
-    db_query.update(updated_data)
+    for key, value in updated_data.items():
+        setattr(db_user, key, value)
+    db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user

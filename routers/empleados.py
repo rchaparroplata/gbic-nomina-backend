@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
+from starlette import status
 
 from dependencies.database import get_db
 from dependencies.empleados import (create_empleado, edit_empleado,
@@ -30,7 +31,9 @@ def get_all_empleados(
     return empleados
 
 
-@router.post('/', response_model=Empleado)
+@router.post('/',
+             status_code=status.HTTP_201_CREATED,
+             response_model=Empleado)
 def post_create_empleado(
     db: db_dependency,
     create_request: EmpleadoBase,
@@ -40,7 +43,9 @@ def post_create_empleado(
     return Empleado.model_validate(new_empleado)
 
 
-@router.put('/{id_empleado}', response_model=Empleado)
+@router.put('/{id_empleado}',
+            status_code=status.HTTP_202_ACCEPTED,
+            response_model=Empleado)
 def put_edit_empleado(
     db: db_dependency,
     edit_request: EmpleadoBase,

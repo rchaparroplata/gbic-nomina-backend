@@ -1,36 +1,13 @@
 from datetime import timedelta
 
 from fastapi.testclient import TestClient
-from sqlalchemy import StaticPool, create_engine
-from sqlalchemy.orm import sessionmaker
 
 from dependencies.database import Base, get_db
 from dependencies.users import create_access_token, create_user, encode_token
 from main import app
 from models.users import UserDB
 from schemas.users import UserIn
-
-DATABASE_URL = "sqlite:///:memory:"
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={
-        "check_same_thread": False,
-    },
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False,
-                                   autoflush=False,
-                                   bind=engine)
-
-
-# Dependency to override the get_db dependency in the main app
-def ovrd_get_db():
-    database = TestingSessionLocal()
-    try:
-        yield database
-    finally:
-        database.close()
-
+from tests.core import engine, ovrd_get_db
 
 db_gen = ovrd_get_db()
 theDb = next(db_gen)
