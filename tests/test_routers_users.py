@@ -1,14 +1,12 @@
 from datetime import timedelta
-from dependencies.database import Base, get_db
-from dependencies.users import (
-    create_user,
-    create_access_token,
-    encode_token
-)
+
 from fastapi.testclient import TestClient
-from main import app
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import sessionmaker
+
+from dependencies.database import Base, get_db
+from dependencies.users import create_access_token, create_user, encode_token
+from main import app
 from models.users import UserDB
 from schemas.users import UserIn
 

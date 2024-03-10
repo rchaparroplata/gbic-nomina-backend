@@ -1,15 +1,17 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
+from typing import Annotated
+
 from decouple import config
-from dependencies.database import get_db
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
-from jose import jwt, JWTError
-from models.users import UserDB
+from jose import JWTError, jwt
 from passlib.context import CryptContext
-from schemas.users import Token, TokenData, User, UserIn
 from sqlalchemy.orm import Session
 from starlette import status
-from typing import Annotated
+
+from dependencies.database import get_db
+from models.users import UserDB
+from schemas.users import Token, TokenData, User, UserIn
 
 SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = 'HS256'
@@ -65,7 +67,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[User]:
     return users
 
 
-async def get_current_active_user(
+def get_current_active_user(
         current_user: Annotated[User, Depends(get_current_user)]
         ):
     if not current_user.activo:
@@ -130,11 +132,11 @@ def create_user(user_data: UserIn, db: Session) -> UserDB:
         {'password_h': get_password_hash(user_data.password)})
     del user_data_extra['password']
     user_data_extra.update({'scopes': ','.join(user_data.scopes)})
-    create_user = UserDB(**user_data_extra)
-    db.add(create_user)
+    user_create = UserDB(**user_data_extra)
+    db.add(user_create)
     db.commit()
-    db.refresh(create_user)
-    return create_user
+    db.refresh(user_create)
+    return user_create
 
 
 def edit_user(id_user: int, user_data: UserIn, db: Session) -> UserDB:

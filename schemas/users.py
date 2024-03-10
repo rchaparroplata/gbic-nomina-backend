@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
@@ -13,7 +15,7 @@ class UserIn(UserBase):
 
 
 class UserUpdate(UserIn):
-    password: str | None = None
+    password: Optional[str] | None = None
 
 
 class Token(BaseModel):

@@ -1,5 +1,6 @@
+from sqlalchemy import Boolean, Column, Integer, String
+
 from dependencies.database import Base
-from sqlalchemy import Column, Integer, String, Boolean
 
 
 class UserDB(Base):

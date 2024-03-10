@@ -1,17 +1,14 @@
-from dependencies.database import get_db
-from dependencies.users import (
-    create_access_token,
-    create_user,
-    edit_user,
-    get_current_active_user,
-    get_users
-)
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas.users import UserIn, UserUpdate, Token, User
-from starlette import status
 from sqlalchemy.orm import Session
-from typing import Annotated
+from starlette import status
+
+from dependencies.database import get_db
+from dependencies.users import (create_access_token, create_user, edit_user,
+                                get_current_active_user, get_users)
+from schemas.users import Token, User, UserIn, UserUpdate
 
 router = APIRouter(
     prefix='/users',

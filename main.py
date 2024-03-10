@@ -1,8 +1,10 @@
-import uvicorn
 from contextlib import asynccontextmanager
-from dependencies.database import engine, Base
+
+import uvicorn
 from fastapi import FastAPI
-from routers.users import router as users_router
+
+from dependencies.database import Base, engine
+from routers import empleados, users
 
 
 @asynccontextmanager
@@ -11,9 +13,12 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title='GBIC Nomina API',
+    lifespan=lifespan)
 
-app.include_router(users_router)
+app.include_router(users.router)
+app.include_router(empleados.router)
 
 
 @app.get('/')
