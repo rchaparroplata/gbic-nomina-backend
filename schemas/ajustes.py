@@ -2,6 +2,7 @@ from datetime import date
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, model_validator
+
 from schemas.users import User
 
 
@@ -27,4 +28,4 @@ class Ajuste(AjusteBase):
     id_ajuste: int
     id_usuario: int
     fecha: date
-    usuario: str
+    usuario: User

@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from dependencies.database import Base, engine
-from routers import empleados, users, ajustes
+from routers import ajustes, empleados, users
 
 
 @asynccontextmanager

@@ -1,12 +1,13 @@
-from fastapi.testclient import TestClient
 from datetime import date
+
+from fastapi.testclient import TestClient
 
 from dependencies.database import Base, get_db
 from dependencies.users import create_access_token, create_user
 from main import app
+from models.ajustes import AjusteDB
 from models.colonias import ColoniaDB
 from models.empleados import EmpleadoDB
-from models.ajustes import AjusteDB
 from schemas.users import UserIn
 from tests.core import engine, ovrd_get_db
 

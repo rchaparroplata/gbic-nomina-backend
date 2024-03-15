@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Date, ForeignKey, Integer, String, Float
-from sqlalchemy.sql import func
+from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
 from dependencies.database import Base
 from models.empleados import EmpleadoDB
