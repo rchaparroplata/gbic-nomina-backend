@@ -1,10 +1,12 @@
 from fastapi.testclient import TestClient
+from datetime import date
 
 from dependencies.database import Base, get_db
 from dependencies.users import create_access_token, create_user
 from main import app
 from models.colonias import ColoniaDB
 from models.empleados import EmpleadoDB
+from models.ajustes import AjusteDB
 from schemas.users import UserIn
 from tests.core import engine, ovrd_get_db
 
@@ -35,8 +37,8 @@ user_data = {
     'password': 'password',
     'nombre': 'name',
     'scopes': ['ajustes:writer', 'ajustes:reader']
-
 }
+
 no_scope_user_data = {
     'username': 'JustUser',
     'password': 'password',
@@ -44,10 +46,20 @@ no_scope_user_data = {
     'scopes': ['None']
 }
 
+ajuste_data = {
+    'fecha_inicio': date(2024, 3, 1),
+    'fecha_fin': date(2024, 3, 1),
+    'motivo': 'test',
+    'monto': 10,
+    'id_empleado': 1,
+    'id_usuario': 1
+}
+
 usr = UserIn(**user_data)
 usr_scope = UserIn(**no_scope_user_data)
 empleado = EmpleadoDB(**empleado_data)
 colonia = ColoniaDB(**colonia_data)
+ajuste = AjusteDB(**ajuste_data)
 
 
 def setup():
@@ -57,6 +69,7 @@ def setup():
     create_user(usr_scope, theDb)
     theDb.add(colonia)
     theDb.add(empleado)
+    theDb.add(ajuste)
     theDb.commit()
 
 
@@ -65,15 +78,36 @@ def teardown():
 
 
 def test_get_all_ajustes():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.get('/ajustes',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              })
+        res_json = response.json()
+        assert response.status_code == 200
+        assert len(res_json) == 1
+        assert res_json[0]['motivo'] == 'test'
 
 
 def test_get_all_ajustes_401():
-    pass
+    with TestClient(app) as client:
+        response = client.get('/ajustes')
+        res_json = response.json()
+        assert response.status_code == 401
+        assert res_json == {'detail': 'Not authenticated'}
 
 
 def test_get_all_ajustes_no_scope():
-    pass
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.get('/ajustes',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              })
+        res_json = response.json()
+        assert response.status_code == 401
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_create_ajuste():

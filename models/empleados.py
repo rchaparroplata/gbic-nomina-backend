@@ -21,4 +21,4 @@ class EmpleadoDB(Base):
     telefono = Column(String, nullable=True)
     celular = Column(String, nullable=True)
     activo = Column(Boolean, default=True)
-    colonia = relationship("ColoniaDB")
+    colonia = relationship("ColoniaDB", lazy='joined')

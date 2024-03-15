@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from dependencies.database import Base, engine
-from routers import empleados, users
+from routers import empleados, users, ajustes
 
 
 @asynccontextmanager
@@ -19,6 +19,7 @@ app = FastAPI(
 
 app.include_router(users.router)
 app.include_router(empleados.router)
+app.include_router(ajustes.router)
 
 
 @app.get('/')

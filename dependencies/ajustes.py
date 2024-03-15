@@ -10,20 +10,22 @@ from schemas.users import User
 def get_ajustes(db: Session,
                 skip: int = 0,
                 limit: int = 10) -> list[Ajuste]:
-    ajustes_db = db.query(AjusteDB).offset(skip).limit(limit).all()
+    ajustes_db = db.\
+        query(AjusteDB)\
+        .offset(skip)\
+        .limit(limit).all()
     ajustes = []
     for ajuste in ajustes_db:
-        ajustes.apped(Ajuste.model_validate(ajuste))
+        ajustes.append(Ajuste.model_validate(ajuste))
     return ajustes
 
 
 def create_ajuste(db: Session,
                   ajuste_data: AjusteBase,
                   current_user: User):
-    ajuste_create = AjusteDB(**ajuste_data.model_dump(),
+    ajuste_create = AjusteDB(**ajuste_data.model_dump(exclude_unset=True),
                              id_usuario=current_user.id_user)
     # TODO: Validar fecha_inicio >= ahora
-    # TODO: Validar fecha_fin >= a fecha_inicio
     db.add(ajuste_create)
     db.commit()
     db.refresh(ajuste_create)
@@ -40,7 +42,6 @@ def edit_ajuste(id_ajs: int,
     # TODO: Validar fecha_fin no menor a ultima aplicada
     # TODO: Validar fecha_inicio no cambiar si ya aplicada
     # TODO: Validar fecha_inicio >= ahora
-    # TODO: Validar fecha_fin >= a fecha_inicio
     del ajuste_data.id_empleado
     edited_data = ajuste_data.model_dump(exclude_unset=True)
     for key, value in edited_data.items():
