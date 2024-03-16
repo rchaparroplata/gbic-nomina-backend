@@ -41,7 +41,6 @@ def edit_ajuste(id_ajs: int,
                             detail=f'Ajuste con id: {id_ajs} no encontrado')
     # TODO: Validar fecha_fin no menor a ultima aplicada
     # TODO: Validar fecha_inicio no cambiar si ya aplicada
-    # TODO: Validar fecha_inicio >= ahora
     del ajuste_data.id_empleado
     edited_data = ajuste_data.model_dump(exclude_unset=True)
     for key, value in edited_data.items():

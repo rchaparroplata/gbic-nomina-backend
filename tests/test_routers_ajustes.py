@@ -112,54 +112,182 @@ def test_get_all_ajustes_no_scope():
 
 
 def test_create_ajuste():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/ajustes',
+                               headers={
+                                   'Authorization': 'Bearer '+tkn
+                               },
+                               json={
+                                   'fecha_inicio': '2024-03-01',
+                                   'fecha_fin': '2024-03-01',
+                                   'motivo': 'New Ajuste',
+                                   'monto': 100,
+                                   'id_empleado': 1
+                               })
+        res_json = response.json()
+        assert response.status_code == 201
+        assert res_json['motivo'] == 'New Ajuste'
+        assert res_json['id_ajuste'] is not None
 
 
 def test_create_ajuste_401():
-    pass
+    with TestClient(app) as client:
+        response = client.post('/ajustes')
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Not authenticated'}
 
 
 def test_create_ajuste_no_scope():
-    pass
-
-
-def test_create_ajuste_fecha_ini():
-    # Validar fecha_inicio >= ahora
-    pass
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/ajustes',
+                               headers={
+                                   'Authorization': 'Bearer '+tkn
+                               },
+                               json={
+                                   'fecha_inicio': '2024-03-01',
+                                   'fecha_fin': '2024-03-01',
+                                   'motivo': 'New Ajuste',
+                                   'monto': 100,
+                                   'id_empleado': 1
+                               })
+        res_json = response.json()
+        assert response.status_code == 401
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_create_ajuste_fecha_fin():
-    # Validar fecha_fin >= a fecha_inicio
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/ajustes',
+                               headers={
+                                   'Authorization': 'Bearer '+tkn
+                               },
+                               json={
+                                   'fecha_inicio': '2024-03-01',
+                                   'fecha_fin': '2023-03-01',
+                                   'motivo': 'New Ajuste',
+                                   'monto': 100,
+                                   'id_empleado': 1
+                               })
+        res_json = response.json()
+        assert response.status_code == 422
+        assert res_json['detail'][0]['msg'] ==\
+            'Value error, La fecha final debe ser después de la inicial'
 
 
 def test_edit_ajuste():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/ajustes/1',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                'fecha_inicio': '2024-03-01',
+                                'fecha_fin': '2024-03-01',
+                                'motivo': 'New Motivo',
+                                'monto': 100,
+                                'id_empleado': 1
+                              })
+        res_json = response.json()
+        assert response.status_code == 202
+        assert res_json['motivo'] == 'New Motivo'
+        assert res_json['id_ajuste'] == 1
+
+
+def test_edit_ajuste_fields():
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/ajustes/1',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                'fecha_inicio': '2024-03-01',
+                                'fecha_fin': '2024-03-01',
+                                'motivo': 'New Motivo',
+                                'monto': 100,
+                                'id_empleado': 100
+                              })
+        res_json = response.json()
+        assert response.status_code == 202
+        assert res_json['id_empleado'] == 1
+
+
+def test_edit_ajuste_404():
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/ajustes/10000',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                'fecha_inicio': '2024-03-01',
+                                'fecha_fin': '2024-03-01',
+                                'motivo': 'New Motivo',
+                                'monto': 100,
+                                'id_empleado': 1
+                              })
+        res_json = response.json()
+        assert response.status_code == 400
+        assert res_json == {'detail': 'Ajuste con id: 10000 no encontrado'}
 
 
 def test_edit_ajuste_401():
-    pass
+    with TestClient(app) as client:
+        response = client.put('/ajustes/1')
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Not authenticated'}
 
 
 def test_edit_ajuste_no_scope():
-    pass
-
-
-def test_edit_ajuste_fecha_ini():
-    # Validar fecha_inicio >= ahora
-    pass
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/ajustes/1',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                  'fecha_inicio': '2024-03-01',
+                                  'fecha_fin': '2024-03-01',
+                                  'motivo': 'New Ajuste',
+                                  'monto': 100,
+                                  'id_empleado': 1
+                              })
+        res_json = response.json()
+        assert response.status_code == 401
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_edit_ajuste_fecha_fin():
-    # Validar fecha_fin >= a fecha_inicio
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/ajustes/1',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                'fecha_inicio': '2024-03-01',
+                                'fecha_fin': '2023-03-01',
+                                'motivo': 'New Motivo',
+                                'monto': 100,
+                                'id_empleado': 100
+                              })
+        res_json = response.json()
+        assert response.status_code == 422
+        assert res_json['detail'][0]['msg'] ==\
+            'Value error, La fecha final debe ser después de la inicial'
 
 
 def test_edit_ajuste_fecha_ini_aplicada():
     # Validar fecha_inicio no cambiar si ya aplicada
+    # TODO: Validate Aplicado
     pass
 
 
 def test_edit_ajuste_fecha_fin_aplicada():
     # Validar fecha_fin no menor a ultima aplicada
+    # TODO: Validate Aplicado
     pass
