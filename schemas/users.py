@@ -18,6 +18,17 @@ class UserUpdate(UserIn):
     password: Optional[str] | None = None
 
 
+class User(UserBase):
+    model_config = ConfigDict(from_attributes=True)
+    id_user: int
+
+    @field_validator('scopes', mode='before')
+    def split_str(cls, v):
+        if isinstance(v, str):
+            return v.split(',')
+        return v
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -27,15 +38,3 @@ class TokenData(BaseModel):
     id: int
     username: str
     nombre: str
-
-
-class User(UserBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    @field_validator('scopes', mode='before')
-    def split_str(cls, v):
-        if isinstance(v, str):
-            return v.split(',')
-        return v
-
-    id_user: int

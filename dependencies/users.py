@@ -51,7 +51,7 @@ async def get_current_user(
             for scope in security_scopes.scopes:
                 if scope in user.scopes:
                     found = True
-                    continue
+                    break
             if not found:
                 raise scope_exception
         return User.model_validate(user)
