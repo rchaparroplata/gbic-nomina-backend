@@ -65,7 +65,7 @@ user_responses = {
                 'example': {'detail': "Sin Privilegios Necesarios"}
             }
         }
-    } 
+    }
 }
 
 
