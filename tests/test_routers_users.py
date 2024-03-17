@@ -68,6 +68,7 @@ usr_access2 = UserIn(**access2_user_data)
 
 
 def setup() -> None:
+    # TODO: Interact with Users From DB
     Base.metadata.create_all(bind=engine)
     app.dependency_overrides[get_db] = ovrd_get_db
     create_user(usr_admin, theDb)
@@ -381,6 +382,6 @@ def test_edit_user_non_exist():
                                   'scopes': ['empty'],
                                   'activo': True
                               })
-        assert response.status_code == 400
+        assert response.status_code == 404
         res_json = response.json()
         assert res_json == {'detail': 'Usuario con id: 100 no encontrado'}

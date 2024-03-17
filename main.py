@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from dependencies.database import Base, engine
-from routers import ajustes, empleados, users
+from routers import ajustes, empleados, users, bancos
 
 
 @asynccontextmanager
@@ -17,9 +17,10 @@ app = FastAPI(
     title='GBIC Nomina API',
     lifespan=lifespan)
 
-app.include_router(users.router)
-app.include_router(empleados.router)
 app.include_router(ajustes.router)
+app.include_router(bancos.router)
+app.include_router(empleados.router)
+app.include_router(users.router)
 
 
 @app.get('/')

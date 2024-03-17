@@ -68,6 +68,24 @@ user_responses = {
     }
 }
 
+user_resp_edit = {
+    status.HTTP_404_NOT_FOUND: {
+        'content': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'detail': {
+                            'type': "string"
+                        }
+                    }
+                },
+                'example': {'detail': "Usuario con id: 1 no encontrado"}
+            }
+        }
+    }
+}
+
 
 async def get_current_user(
         security_scopes: SecurityScopes,
@@ -191,7 +209,7 @@ def create_user(user_data: UserIn, db: Session) -> UserDB:
 def edit_user(id_user: int, user_data: UserIn, db: Session) -> UserDB:
     db_user = db.query(UserDB).filter(UserDB.id_user == id_user).first()
     if not db_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Usuario con id: {id_user} no encontrado')
     updated_data = user_data.model_dump(exclude_unset=True)
     if user_data.password:

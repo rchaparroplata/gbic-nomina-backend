@@ -6,13 +6,14 @@ from models.empleados import EmpleadoDB
 from schemas.empleados import Empleado, EmpleadoIn
 
 
+#TODO: Edit Responses
+
 def get_empleados(db: Session,
                   skip: int = 0,
                   limit: int = 10) -> list[Empleado]:
     empleados_db = db.query(EmpleadoDB).offset(skip).limit(limit).all()
-    empleados = []
-    for empleado in empleados_db:
-        empleados.append(Empleado.model_validate(empleado))
+    empleados = [Empleado.model_validate(empleado)
+                 for empleado in empleados_db]
     return empleados
 
 
@@ -41,7 +42,7 @@ def edit_empleado(id_emp: int,
     empleado_db = db.query(EmpleadoDB)\
         .filter(EmpleadoDB.id_empleado == id_emp).first()
     if not empleado_db:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Empleado con id: {id_emp} no encontrado')
     emp_rfc = db.query(EmpleadoDB)\
         .filter((EmpleadoDB.rfc == empleado_data.rfc)

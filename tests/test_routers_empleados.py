@@ -30,6 +30,18 @@ empleado_data = {
     "celular": "1231232132",
 }
 
+empleado2_data = {
+    "nombre": "Nombre2",
+    "paterno": "Paterno2",
+    "materno": "Materno2",
+    "rfc": "RFC001XXX",
+    "curp": "CURPXXX001",
+    "calle": "Calle",
+    "exterior": "200",
+    "id_colonia": 1,
+    "celular": "1231232132",
+}
+
 user_data = {
     'username': 'writer',
     'password': 'password',
@@ -47,6 +59,7 @@ no_scope_user_data = {
 usr = UserIn(**user_data)
 usr_scope = UserIn(**no_scope_user_data)
 empleado = EmpleadoDB(**empleado_data)
+empleado2 = EmpleadoDB(**empleado2_data)
 colonia = ColoniaDB(**colonia_data)
 
 
@@ -57,7 +70,11 @@ def setup():
     create_user(usr_scope, theDb)
     theDb.add(colonia)
     theDb.add(empleado)
+    theDb.add(empleado2)
     theDb.commit()
+    theDb.refresh(colonia)
+    theDb.refresh(empleado)
+    theDb.refresh(empleado2)
 
 
 def teardown():
@@ -73,7 +90,7 @@ def test_get_all_empleados():
                               })
         res_json = response.json()
         assert response.status_code == 200
-        assert len(res_json) == 1
+        assert len(res_json) == 2
         assert res_json[0]['nombre'] == 'Nombre'
 
 
@@ -107,8 +124,8 @@ def test_create_empleado():
                                    "nombre": "Nombre2",
                                    "paterno": "Paterno2",
                                    "materno": "Materno2",
-                                   "rfc": "RFC001XXX",
-                                   "curp": "CURPXXX001",
+                                   "rfc": "RFC001XFFXX",
+                                   "curp": "CURPXXXFF001",
                                    "calle": "Calle",
                                    "exterior": "200",
                                    "id_colonia": 1,
@@ -198,7 +215,7 @@ def test_create_empleado_curp():
 def test_edit_empleado():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
-        response = client.put('/empleados/1',
+        response = client.put(f'/empleados/{empleado.id_empleado}',
                               headers={
                                   'Authorization': 'Bearer '+tkn
                                   },
@@ -218,9 +235,32 @@ def test_edit_empleado():
         assert res_json['nombre'] == 'NombreNuevo'
 
 
+def test_edit_empleado_404():
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/empleados/1000',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                                  },
+                              json={
+                                   "nombre": "NombreNuevo",
+                                   "paterno": "Paterno2",
+                                   "materno": "Materno2",
+                                   "rfc": "RFC000XXX",
+                                   "curp": "CURPXXX000",
+                                   "calle": "Calle",
+                                   "exterior": "200",
+                                   "id_colonia": 1,
+                                   "celular": "1231232132",
+                                })
+        res_json = response.json()
+        assert response.status_code == 404
+        assert res_json == {'detail': 'Empleado con id: 1000 no encontrado'}
+
+
 def test_edit_empleado_401():
     with TestClient(app) as client:
-        response = client.put('/empleados/1')
+        response = client.put(f'/empleados/{empleado.id_empleado}')
         assert response.status_code == 401
         assert response.json() == {'detail': 'Not authenticated'}
 
@@ -228,7 +268,7 @@ def test_edit_empleado_401():
 def test_edit_empleado_rfc():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
-        response = client.put('/empleados/2',
+        response = client.put(f'/empleados/{empleado2.id_empleado}',
                               headers={
                                   'Authorization': 'Bearer '+tkn
                                   },
@@ -251,7 +291,7 @@ def test_edit_empleado_rfc():
 def test_edit_empleado_curp():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
-        response = client.put('/empleados/2',
+        response = client.put(f'/empleados/{empleado2.id_empleado}',
                               headers={
                                   'Authorization': 'Bearer '+tkn
                                   },

@@ -8,7 +8,7 @@ from starlette import status
 from dependencies.database import get_db
 from dependencies.users import (create_access_token, create_user, edit_user,
                                 get_current_active_user, get_users,
-                                user_responses)
+                                user_responses, user_resp_edit)
 from schemas.users import Token, User, UserIn, UserUpdate
 
 router = APIRouter(
@@ -37,7 +37,7 @@ async def post_create_user(db: db_dependency,
 
 @router.put('/{id_user}',
             status_code=status.HTTP_202_ACCEPTED,
-            responses=user_responses,
+            responses={**user_responses, **user_resp_edit},
             response_model=User)
 async def put_edit_user(db: db_dependency,
                         edit_user_request: UserUpdate,

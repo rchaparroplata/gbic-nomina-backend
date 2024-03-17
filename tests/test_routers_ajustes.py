@@ -71,6 +71,7 @@ def setup():
     theDb.add(colonia)
     theDb.add(empleado)
     theDb.add(ajuste)
+    theDb.refresh(ajuste)
     theDb.commit()
 
 
@@ -180,7 +181,7 @@ def test_create_ajuste_fecha_fin():
 def test_edit_ajuste():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
-        response = client.put('/ajustes/1',
+        response = client.put(f'/ajustes/{ajuste.id_ajuste}',
                               headers={
                                   'Authorization': 'Bearer '+tkn
                               },
@@ -194,13 +195,13 @@ def test_edit_ajuste():
         res_json = response.json()
         assert response.status_code == 202
         assert res_json['motivo'] == 'New Motivo'
-        assert res_json['id_ajuste'] == 1
+        assert res_json['id_ajuste'] == ajuste.id_ajuste
 
 
 def test_edit_ajuste_fields():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
-        response = client.put('/ajustes/1',
+        response = client.put(f'/ajustes/{ajuste.id_ajuste}',
                               headers={
                                   'Authorization': 'Bearer '+tkn
                               },
@@ -213,7 +214,7 @@ def test_edit_ajuste_fields():
                               })
         res_json = response.json()
         assert response.status_code == 202
-        assert res_json['id_empleado'] == 1
+        assert res_json['id_empleado'] == ajuste.id_ajuste
 
 
 def test_edit_ajuste_404():
@@ -231,7 +232,7 @@ def test_edit_ajuste_404():
                                 'id_empleado': 1
                               })
         res_json = response.json()
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert res_json == {'detail': 'Ajuste con id: 10000 no encontrado'}
 
 
@@ -245,7 +246,7 @@ def test_edit_ajuste_401():
 def test_edit_ajuste_no_scope():
     tkn = create_access_token(usr_scope, theDb).access_token
     with TestClient(app) as client:
-        response = client.put('/ajustes/1',
+        response = client.put(f'/ajustes/{ajuste.id_ajuste}',
                               headers={
                                   'Authorization': 'Bearer '+tkn
                               },
@@ -264,7 +265,7 @@ def test_edit_ajuste_no_scope():
 def test_edit_ajuste_fecha_fin():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
-        response = client.put('/ajustes/1',
+        response = client.put(f'/ajustes/{ajuste.id_ajuste}',
                               headers={
                                   'Authorization': 'Bearer '+tkn
                               },
