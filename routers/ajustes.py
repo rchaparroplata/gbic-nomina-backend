@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
 from starlette import status
 
-from dependencies.ajustes import create_ajuste, edit_ajuste, get_ajustes
+from dependencies.ajustes import (ajustes_resp_edit, create_ajuste,
+                                  edit_ajuste, get_ajustes)
 from dependencies.database import get_db
 from dependencies.users import get_current_active_user, user_responses
 from schemas.ajustes import AjusteIn, AjusteOut
@@ -48,7 +49,7 @@ def post_create_ajuste(
 
 @router.put('/{id_ajuste}',
             status_code=status.HTTP_202_ACCEPTED,
-            responses=user_responses,
+            responses={**user_responses, **ajustes_resp_edit},
             response_model=AjusteOut)
 def put_edit_ajuste(
     db: db_dependency,

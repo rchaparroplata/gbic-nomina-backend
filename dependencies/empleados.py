@@ -5,8 +5,40 @@ from starlette import status
 from models.empleados import EmpleadoDB
 from schemas.empleados import Empleado, EmpleadoIn
 
+resp_edit = {
+    status.HTTP_404_NOT_FOUND: {
+        'content': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'detail': {
+                            'type': "string"
+                        }
+                    }
+                },
+                'example': {'detail': "Empleado con id: 1 no encontrado"}
+            }
+        }
+    },
+    status.HTTP_400_BAD_REQUEST: {
+        'content': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'detail': {
+                            'type': "string"
+                        }
+                    }
+                },
+                'example': {'detail': "RFC ya registrado"}
+            }
+        }
+    }
 
-# TODO: Edit Responses
+}
+
 
 def get_empleados(db: Session,
                   skip: int = 0,

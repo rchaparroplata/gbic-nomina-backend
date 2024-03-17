@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from dependencies.bancos import create_banco, edit_banco, get_bancos
 from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
 from starlette import status
 
+from dependencies.bancos import create_banco, edit_banco, get_bancos
 from dependencies.database import get_db
 from dependencies.users import get_current_active_user, user_responses
-from schemas.bancos import BancoOut, BancoIn
+from schemas.bancos import BancoIn, BancoOut
 from schemas.users import User
 
 router = APIRouter(

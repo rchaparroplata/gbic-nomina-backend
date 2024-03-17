@@ -8,7 +8,7 @@ from starlette import status
 from dependencies.database import get_db
 from dependencies.users import (create_access_token, create_user, edit_user,
                                 get_current_active_user, get_users,
-                                user_responses, user_resp_edit)
+                                user_resp_edit, user_responses)
 from schemas.users import Token, User, UserIn, UserUpdate
 
 router = APIRouter(

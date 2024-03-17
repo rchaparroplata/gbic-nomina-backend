@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from models.bancos import BancosDB
-from schemas.bancos import BancoOut, BancoIn
+from schemas.bancos import BancoIn, BancoOut
 
 
 def get_bancos(db: Session,

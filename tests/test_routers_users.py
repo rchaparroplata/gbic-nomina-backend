@@ -68,7 +68,6 @@ usr_access2 = UserIn(**access2_user_data)
 
 
 def setup() -> None:
-    # TODO: Interact with Users From DB
     Base.metadata.create_all(bind=engine)
     app.dependency_overrides[get_db] = ovrd_get_db
     create_user(usr_admin, theDb)

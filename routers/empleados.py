@@ -6,7 +6,7 @@ from starlette import status
 
 from dependencies.database import get_db
 from dependencies.empleados import (create_empleado, edit_empleado,
-                                    get_empleados)
+                                    get_empleados, resp_edit)
 from dependencies.users import get_current_active_user, user_responses
 from schemas.empleados import Empleado, EmpleadoIn
 from schemas.users import User
@@ -36,7 +36,7 @@ def get_all_empleados(
 @router.post('/',
              status_code=status.HTTP_201_CREATED,
              response_model=Empleado,
-             responses=user_responses)
+             responses={**user_responses, **resp_edit})
 def post_create_empleado(
     db: db_dependency,
     create_request: EmpleadoIn,
@@ -49,7 +49,7 @@ def post_create_empleado(
 @router.put('/{id_empleado}',
             status_code=status.HTTP_202_ACCEPTED,
             response_model=Empleado,
-            responses=user_responses)
+            responses={**user_responses, **resp_edit})
 def put_edit_empleado(
     db: db_dependency,
     edit_request: EmpleadoIn,

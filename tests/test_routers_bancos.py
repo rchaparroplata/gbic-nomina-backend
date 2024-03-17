@@ -1,10 +1,9 @@
 from dependencies.database import Base, get_db
 from dependencies.users import create_user
 from main import app
+from models.bancos import BancosDB
 from schemas.users import UserIn
 from tests.core import engine, ovrd_get_db
-from models.bancos import BancosDB
-
 
 db_gen = ovrd_get_db()
 theDb = next(db_gen)

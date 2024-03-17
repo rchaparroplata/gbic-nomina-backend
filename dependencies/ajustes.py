@@ -6,8 +6,24 @@ from models.ajustes import AjusteDB
 from schemas.ajustes import AjusteIn, AjusteOut
 from schemas.users import User
 
+ajustes_resp_edit = {
+    status.HTTP_404_NOT_FOUND: {
+        'content': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'detail': {
+                            'type': "string"
+                        }
+                    }
+                },
+                'example': {'detail': "Ajuste con id: 1 no encontrado"}
+            }
+        }
+    }
+}
 
-# TODO: Edit Responses
 
 def get_ajustes(db: Session,
                 skip: int = 0,
