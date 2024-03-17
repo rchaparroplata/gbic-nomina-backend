@@ -6,7 +6,7 @@ from starlette import status
 
 from dependencies.ajustes import create_ajuste, edit_ajuste, get_ajustes
 from dependencies.database import get_db
-from dependencies.users import get_current_active_user
+from dependencies.users import get_current_active_user, user_responses
 from schemas.ajustes import AjusteIn, AjusteOut
 from schemas.users import User
 
@@ -18,7 +18,9 @@ router = APIRouter(
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
-@router.get('/', response_model=list[AjusteOut])
+@router.get('/',
+            responses=user_responses,
+            response_model=list[AjusteOut])
 def get_all_ajustes(
     db: db_dependency,
     current_user: Annotated[User, Security(get_current_active_user,
@@ -32,6 +34,7 @@ def get_all_ajustes(
 
 @router.post('/',
              status_code=status.HTTP_201_CREATED,
+             responses=user_responses,
              response_model=AjusteOut)
 def post_create_ajuste(
     db: db_dependency,
@@ -45,6 +48,7 @@ def post_create_ajuste(
 
 @router.put('/{id_ajuste}',
             status_code=status.HTTP_202_ACCEPTED,
+            responses=user_responses,
             response_model=AjusteOut)
 def put_edit_ajuste(
     db: db_dependency,

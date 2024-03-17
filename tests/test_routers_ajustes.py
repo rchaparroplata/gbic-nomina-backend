@@ -107,7 +107,7 @@ def test_get_all_ajustes_no_scope():
                                   'Authorization': 'Bearer '+tkn
                               })
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -153,7 +153,7 @@ def test_create_ajuste_no_scope():
                                    'id_empleado': 1
                                })
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -257,7 +257,7 @@ def test_edit_ajuste_no_scope():
                                   'id_empleado': 1
                               })
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 

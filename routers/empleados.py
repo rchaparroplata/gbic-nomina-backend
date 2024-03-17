@@ -7,7 +7,7 @@ from starlette import status
 from dependencies.database import get_db
 from dependencies.empleados import (create_empleado, edit_empleado,
                                     get_empleados)
-from dependencies.users import get_current_active_user
+from dependencies.users import get_current_active_user, user_responses
 from schemas.empleados import Empleado, EmpleadoIn
 from schemas.users import User
 
@@ -19,7 +19,9 @@ router = APIRouter(
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
-@router.get('/', response_model=list[Empleado])
+@router.get('/',
+            response_model=list[Empleado],
+            responses=user_responses)
 def get_all_empleados(
     db: db_dependency,
     current_user: Annotated[User, Security(get_current_active_user,
@@ -33,7 +35,8 @@ def get_all_empleados(
 
 @router.post('/',
              status_code=status.HTTP_201_CREATED,
-             response_model=Empleado)
+             response_model=Empleado,
+             responses=user_responses)
 def post_create_empleado(
     db: db_dependency,
     create_request: EmpleadoIn,
@@ -45,7 +48,8 @@ def post_create_empleado(
 
 @router.put('/{id_empleado}',
             status_code=status.HTTP_202_ACCEPTED,
-            response_model=Empleado)
+            response_model=Empleado,
+            responses=user_responses)
 def put_edit_empleado(
     db: db_dependency,
     edit_request: EmpleadoIn,

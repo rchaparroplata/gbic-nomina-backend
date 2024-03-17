@@ -20,6 +20,55 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='users/token')
 
 
+user_responses = {
+    status.HTTP_400_BAD_REQUEST: {
+        'content': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'detail': {
+                            'type': "string"
+                        }
+                    }
+                },
+                'example': {'detail': 'Usuario Desactivado'}
+            }
+        }
+    },
+    status.HTTP_401_UNAUTHORIZED: {
+        'content': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'detail': {
+                            'type': "string"
+                        }
+                    }
+                },
+                'example': {'detail': "Could not validate credentials"}
+            }
+        }
+    },
+    status.HTTP_403_FORBIDDEN: {
+        'content': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'detail': {
+                            'type': "string"
+                        }
+                    }
+                },
+                'example': {'detail': "Sin Privilegios Necesarios"}
+            }
+        }
+    } 
+}
+
+
 async def get_current_user(
         security_scopes: SecurityScopes,
         token: Annotated[str, Depends(oauth2_bearer)],
@@ -34,7 +83,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": authenticate_value},
     )
     scope_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=status.HTTP_403_FORBIDDEN,
         detail="Sin Privilegios Necesarios",
         headers={"WWW-Authenticate": authenticate_value},
     )

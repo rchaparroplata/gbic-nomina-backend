@@ -85,7 +85,7 @@ def test_get_all_empleados_no_scope():
                                   'Authorization': 'Bearer '+tkn
                               })
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -145,7 +145,7 @@ def test_create_empleado_no_scope():
                                    "celular": "1231232132",
                                 })
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 

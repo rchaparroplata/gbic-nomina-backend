@@ -137,7 +137,7 @@ def test_get_all_users_no_scope():
                               headers={
                                   'Authorization': 'Bearer '+access_tkn
                               })
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -292,7 +292,7 @@ def test_create_user_no_scope():
                                   'password': 'EsUnSecreto',
                                   'scopes': ['empty']
                                 })
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -364,7 +364,7 @@ def test_edit_user_no_scope():
                                   'scopes': ['empty'],
                                   'activo': True
                               })
-        assert response.status_code == 401
+        assert response.status_code == 403
         assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 

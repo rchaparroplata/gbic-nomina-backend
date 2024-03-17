@@ -7,7 +7,8 @@ from starlette import status
 
 from dependencies.database import get_db
 from dependencies.users import (create_access_token, create_user, edit_user,
-                                get_current_active_user, get_users)
+                                get_current_active_user, get_users,
+                                user_responses)
 from schemas.users import Token, User, UserIn, UserUpdate
 
 router = APIRouter(
@@ -19,7 +20,10 @@ db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_active_user)]
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=User)
+@router.post("/",
+             status_code=status.HTTP_201_CREATED,
+             responses=user_responses,
+             response_model=User)
 async def post_create_user(db: db_dependency,
                            create_user_request: UserIn,
                            current_user: Annotated[User, Security(
@@ -33,6 +37,7 @@ async def post_create_user(db: db_dependency,
 
 @router.put('/{id_user}',
             status_code=status.HTTP_202_ACCEPTED,
+            responses=user_responses,
             response_model=User)
 async def put_edit_user(db: db_dependency,
                         edit_user_request: UserUpdate,
@@ -49,19 +54,19 @@ async def put_edit_user(db: db_dependency,
     return User.model_validate(edited_user)
 
 
-@router.post('/token', response_model=Token)
+@router.post('/token', response_model=Token, responses=user_responses)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                db: db_dependency):
+                db: db_dependency,):
     token = create_access_token(form_data, db)
     return token
 
 
-@router.get('/me', response_model=User)
+@router.get('/me', response_model=User, responses=user_responses,)
 def me(current_user: user_dependency, db: db_dependency):
     return current_user
 
 
-@router.get('/', response_model=list[User])
+@router.get('/', response_model=list[User], responses=user_responses,)
 async def get_all_users(
         db: db_dependency,
         current_user: Annotated[User, Security(get_current_active_user,
