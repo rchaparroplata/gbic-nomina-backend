@@ -71,8 +71,8 @@ def setup():
     theDb.add(colonia)
     theDb.add(empleado)
     theDb.add(ajuste)
-    theDb.refresh(ajuste)
     theDb.commit()
+    theDb.refresh(ajuste)
 
 
 def teardown():
