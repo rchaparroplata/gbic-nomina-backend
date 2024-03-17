@@ -6,7 +6,7 @@ from models.empleados import EmpleadoDB
 from schemas.empleados import Empleado, EmpleadoIn
 
 
-#TODO: Edit Responses
+# TODO: Edit Responses
 
 def get_empleados(db: Session,
                   skip: int = 0,
