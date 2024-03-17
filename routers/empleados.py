@@ -8,7 +8,7 @@ from dependencies.database import get_db
 from dependencies.empleados import (create_empleado, edit_empleado,
                                     get_empleados)
 from dependencies.users import get_current_active_user
-from schemas.empleados import Empleado, EmpleadoBase
+from schemas.empleados import Empleado, EmpleadoIn
 from schemas.users import User
 
 router = APIRouter(
@@ -36,7 +36,7 @@ def get_all_empleados(
              response_model=Empleado)
 def post_create_empleado(
     db: db_dependency,
-    create_request: EmpleadoBase,
+    create_request: EmpleadoIn,
     current_user: Annotated[User, Security(get_current_active_user,
                                            scopes=["empleados:write"])]):
     new_empleado = create_empleado(db, create_request)
@@ -48,7 +48,7 @@ def post_create_empleado(
             response_model=Empleado)
 def put_edit_empleado(
     db: db_dependency,
-    edit_request: EmpleadoBase,
+    edit_request: EmpleadoIn,
     id_empleado: int,
     current_user: Annotated[User,
                             Security(get_current_active_user,

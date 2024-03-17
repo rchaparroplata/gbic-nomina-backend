@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from models.empleados import EmpleadoDB
-from schemas.empleados import Empleado, EmpleadoBase
+from schemas.empleados import Empleado, EmpleadoIn
 
 
 def get_empleados(db: Session,
@@ -17,7 +17,7 @@ def get_empleados(db: Session,
 
 
 def create_empleado(db: Session,
-                    empleado_data: EmpleadoBase) -> EmpleadoDB:
+                    empleado_data: EmpleadoIn) -> EmpleadoDB:
     emp_rfc = db.query(EmpleadoDB)\
         .filter(EmpleadoDB.rfc == empleado_data.rfc).first()
     if emp_rfc:
@@ -36,7 +36,7 @@ def create_empleado(db: Session,
 
 
 def edit_empleado(id_emp: int,
-                  empleado_data: EmpleadoBase,
+                  empleado_data: EmpleadoIn,
                   db: Session):
     empleado_db = db.query(EmpleadoDB)\
         .filter(EmpleadoDB.id_empleado == id_emp).first()

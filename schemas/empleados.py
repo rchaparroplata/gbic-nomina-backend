@@ -20,6 +20,10 @@ class EmpleadoBase(BaseModel):
     activo: bool = True
 
 
+class EmpleadoIn(EmpleadoBase):
+    pass
+
+
 class Empleado(EmpleadoBase):
     model_config = ConfigDict(from_attributes=True)
     id_empleado: int

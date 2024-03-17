@@ -3,25 +3,25 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from models.ajustes import AjusteDB
-from schemas.ajustes import Ajuste, AjusteBase
+from schemas.ajustes import AjusteIn, AjusteOut
 from schemas.users import User
 
 
 def get_ajustes(db: Session,
                 skip: int = 0,
-                limit: int = 10) -> list[Ajuste]:
+                limit: int = 10) -> list[AjusteOut]:
     ajustes_db = db.\
         query(AjusteDB)\
         .offset(skip)\
         .limit(limit).all()
     ajustes = []
     for ajuste in ajustes_db:
-        ajustes.append(Ajuste.model_validate(ajuste))
+        ajustes.append(AjusteOut.model_validate(ajuste))
     return ajustes
 
 
 def create_ajuste(db: Session,
-                  ajuste_data: AjusteBase,
+                  ajuste_data: AjusteIn,
                   current_user: User):
     ajuste_create = AjusteDB(**ajuste_data.model_dump(exclude_unset=True),
                              id_usuario=current_user.id_user)
@@ -33,7 +33,7 @@ def create_ajuste(db: Session,
 
 
 def edit_ajuste(id_ajs: int,
-                ajuste_data: AjusteBase,
+                ajuste_data: AjusteIn,
                 db: Session):
     ajuste_db = db.query(AjusteDB).filter(AjusteDB.id_ajuste == id_ajs).first()
     if not ajuste_db:
