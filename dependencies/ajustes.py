@@ -41,7 +41,6 @@ def create_ajuste(db: Session,
                   current_user: User) -> AjusteDB:
     ajuste_create = AjusteDB(**ajuste_data.model_dump(exclude_unset=True),
                              id_usuario=current_user.id_user)
-    # TODO: Validar fecha_inicio >= ahora
     db.add(ajuste_create)
     db.commit()
     db.refresh(ajuste_create)
