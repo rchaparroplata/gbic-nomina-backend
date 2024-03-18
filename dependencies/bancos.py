@@ -22,7 +22,7 @@ def create_banco(db: Session,
     if banco_db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f'Banco con nombre {banco_data.nombre}'
-                                   'ya existente')
+                                   ' ya existente')
     banco_create = BancosDB(**banco_data.model_dump(exclude_unset=True))
     db.add(banco_create)
     db.commit()
@@ -43,8 +43,8 @@ def edit_banco(db: Session,
                              BancosDB.id_banco != id_banco).first()
     if banco_nombre is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail=f'Banco con nombre: {banco_data.nombre}'
-                                   'ya existente')
+                            detail=f'Banco con nombre {banco_data.nombre}'
+                                   ' ya existente')
     # TODO: If activo = False; todas las cuentas = False
     edited_data = banco_data.model_dump(exclude_unset=True)
     [setattr(banco_db, key, value) for key, value in edited_data.items()]

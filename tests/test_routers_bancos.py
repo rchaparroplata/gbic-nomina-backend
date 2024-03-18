@@ -1,5 +1,8 @@
+from fastapi.testclient import TestClient
+from starlette import status
+
 from dependencies.database import Base, get_db
-from dependencies.users import create_user
+from dependencies.users import create_access_token, create_user
 from main import app
 from models.bancos import BancosDB
 from schemas.users import UserIn
@@ -52,53 +55,163 @@ def teardown():
     Base.metadata.drop_all(bind=engine)
 
 
-def tet_get_all_bancos():
-    pass
+def test_get_all_bancos():
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.get('/bancos',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              })
+        res_json = response.json()
+        assert response.status_code == 200
+        assert len(res_json) == 2
+        assert res_json[0]['nombre'] == 'Banco Uno'
 
 
 def test_get_all_bancos_401():
-    pass
+    with TestClient(app) as client:
+        response = client.get('/bancos')
+        res_json = response.json()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert res_json == {'detail': 'Not authenticated'}
 
 
 def test_get_all_bancos_no_scope():
-    pass
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.get('/bancos',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_create_banco():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/bancos',
+                               headers={
+                                  'Authorization': 'Bearer '+tkn
+                               },
+                               json={
+                                   'nombre': 'Banco Nuevo'
+                               })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_201_CREATED
+        assert res_json['nombre'] == 'Banco Nuevo'
+        assert res_json['activo'] is True
 
 
 def test_create_banco_401():
-    pass
+    with TestClient(app) as client:
+        response = client.post('/bancos')
+        res_json = response.json()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert res_json == {'detail': 'Not authenticated'}
 
 
 def test_create_banco_no_scope():
-    pass
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/bancos',
+                               headers={
+                                   'Authorization': 'Bearer '+tkn
+                               })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_create_banco_nombre_existente():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.post('/bancos',
+                               headers={
+                                  'Authorization': 'Bearer '+tkn
+                               },
+                               json={
+                                   'nombre': 'Banco Dos'
+                               })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert res_json == {'detail': 'Banco con nombre Banco Dos '
+                            'ya existente'}
 
 
 def test_edit_banco():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put(f'/bancos/{banco2.id_banco}',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                  'nombre': 'Banco Editado'
+                              })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_202_ACCEPTED
+        assert res_json['nombre'] == 'Banco Editado'
+        assert res_json['id_banco'] == banco2.id_banco
+        assert res_json['activo'] is True
 
 
 def test_edit_banco_401():
-    pass
+    with TestClient(app) as client:
+        response = client.put(f'/bancos/{banco2.id_banco}',
+                              json={
+                                  'nombre': 'Banco Editado'
+                              })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert res_json == {'detail': 'Not authenticated'}
 
 
 def test_edit_banco_no_scope():
-    pass
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put(f'/bancos/{banco2.id_banco}',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                  'nombre': 'Banco Editado'
+                              })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_edit_banco_404():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put('/bancos/1000',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                  'nombre': 'Banco Editado'
+                              })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert res_json == {'detail': 'Banco con Id: 1000 no encontrado'}
 
 
 def test_edit_banco_nombre():
-    # Editar un banco con nombre ya existente en la BD
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.put(f'/bancos/{banco2.id_banco}',
+                              headers={
+                                  'Authorization': 'Bearer '+tkn
+                              },
+                              json={
+                                  'nombre': 'Banco Uno'
+                              })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert res_json == {'detail': 'Banco con nombre Banco Uno '
+                            'ya existente'}
 
 
 def test_edit_banco_deactivate_cascade():
