@@ -36,6 +36,14 @@ inactive_user_data = {
         'activo': False
     }
 
+false_user_data = {
+        'username': 'No',
+        'password': 'Existo',
+        'nombre': 'Nunca Creado',
+        'scopes': ['noScope'],
+        'activo': False
+    }
+
 access_user_data = {
         'username': 'access',
         'password': 'IamPassword',
@@ -65,6 +73,7 @@ usr_admin = UserIn(**admin_user_data)
 usr_inactive = UserIn(**inactive_user_data)
 usr_access = UserIn(**access_user_data)
 usr_access2 = UserIn(**access2_user_data)
+user_false = UserIn(**false_user_data)
 
 
 def setup() -> None:
@@ -83,6 +92,11 @@ def teardown() -> None:
     Base.metadata.drop_all(bind=engine)
 
 
+def test_create_access_token():
+    tkn = create_access_token(usr_access, theDb)
+    assert tkn.token_type == 'bearer'
+
+
 def test_get_current_user_401():
     with TestClient(app) as client:
         response = client.get('/users/me')
@@ -99,6 +113,17 @@ def test_get_current_inactive_user():
                               })
         assert response.status_code == 400
         assert response.json() == {'detail': 'Usuario Desactivado'}
+
+
+def test_bad_token():
+    bad_tkn = encode_token({'yes': 'yes'}, timedelta(minutes=20))
+    with TestClient(app) as client:
+        response = client.get('/users/me',
+                              headers={
+                                  'Authorization': 'Bearer '+bad_tkn
+                              })
+        assert response.status_code == 401
+        assert response.json() == {'detail': 'Could not validate credentials'}
 
 
 def test_get_current_user():
@@ -128,6 +153,26 @@ def test_get_user_token():
             "username": admin_user_data.get('username'),
             "password": admin_user_data.get('password')})
         assert response.status_code == 200
+
+
+def test_get_user_token_false_user():
+    with TestClient(app) as client:
+        response = client.post('/users/token', data={
+            "username": false_user_data.get('username'),
+            "password": false_user_data.get('password')})
+        res_json = response.json()
+        assert response.status_code == 401
+        assert res_json == {'detail': 'Usuario y/o Password no validos'}
+
+
+def test_get_user_token_wrong_pass():
+    with TestClient(app) as client:
+        response = client.post('/users/token', data={
+            "username": access_user_data.get('username'),
+            "password": false_user_data.get('password')})
+        res_json = response.json()
+        assert response.status_code == 401
+        assert res_json == {'detail': 'Usuario y/o Password no validos'}
 
 
 def test_get_all_users_no_scope():
