@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+# from sqlalchemy.sql import func
 from starlette import status
 
 from models.prestamos import PrestamosDB
@@ -57,6 +58,16 @@ def edit_prestamo(id_pres: int,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Prestamo con id: {id_pres} no encontrado')
     del input_data.id_empleado
+    # TODO: validar monto
+    # monto_pagado = db\
+    #     .query(func.sum(RecibosDB.monto).label('Total'))\
+    #     .filter(RecibosDB.id_prestamo == id_pres)\
+    #     .first().Total
+    # if input_data.monto < monto_pagado:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                         detail='EL monto total no puede ser menor a la '
+    #                                f'suma de lo ya pagado (${monto_pagado})')
+    # TODO:
     edited_data = input_data.model_dump(exclude_unset=True)
     for key, value in edited_data.items():
         setattr(prestamo_db, key, value)
@@ -64,3 +75,24 @@ def edit_prestamo(id_pres: int,
     db.commit()
     db.refresh(prestamo_db)
     return prestamo_db
+
+
+def delete_prestamo(db: Session, id_pres: int):
+    prestamo_db = db\
+        .query(PrestamosDB)\
+        .filter(PrestamosDB.id_prestamo == id_pres)\
+        .first()
+    if not prestamo_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'Prestamo con id: {id_pres} no encontrado')
+    # TODO: Validar que no esté aplicada
+    # aplicado = db\
+    #     .query(RecibosDB)\
+    #     .filter(RecibosDB.id_prestamo == id_pres)\
+    #     .first()
+    # if aplicado:
+    #   raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                       detail=f'Prestamo con id: {id_pres} ya aplicado, '
+    #                              'no se puede eliminar')
+    db.delete(prestamo_db)
+    db.commit()
