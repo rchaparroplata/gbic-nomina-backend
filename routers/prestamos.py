@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
 from starlette import status
 
-
 from dependencies.database import get_db
+from dependencies.prestamos import (create_prestamo, edit_prestamo,
+                                    get_prestamos, prestamos_resp_edit)
 from dependencies.users import get_current_active_user, user_responses
-from dependencies.prestamos import (get_prestamos, create_prestamo,
-                                    edit_prestamo, prestamos_resp_edit)
 from schemas.prestamos import PrestamoIn, PrestamoOut
 from schemas.users import User
 

@@ -20,6 +20,20 @@ db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_active_user)]
 
 
+# @router.get('/Admin')
+# async def admin(db: db_dependency):
+#     admin_user_data = {
+#         'username': 'Admin',
+#         'password': '123',
+#         'nombre': 'The Administrator',
+#         'scopes': ['Admin'],
+#         'activo': True
+#     }
+#     usr_admin = UserIn(**admin_user_data)
+#     x = create_user(usr_admin, db)
+#     return x
+
+
 @router.post("/",
              status_code=status.HTTP_201_CREATED,
              responses=user_responses,

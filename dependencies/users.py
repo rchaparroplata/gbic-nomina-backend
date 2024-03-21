@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 from typing import Annotated
-from pydantic import ValidationError
 
 from decouple import config
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from starlette import status
 

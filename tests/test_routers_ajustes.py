@@ -1,6 +1,7 @@
 from datetime import date
 
 from fastapi.testclient import TestClient
+from starlette import status
 
 from dependencies.database import Base, get_db
 from dependencies.users import create_access_token, create_user
@@ -292,3 +293,30 @@ def test_edit_ajuste_fecha_fin_aplicada():
     # Validar fecha_fin no menor a ultima aplicada
     # TODO: Validate Aplicado
     pass
+
+
+def test_delete_ajuste_404():
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.delete('/ajustes/10000',
+                                 headers={
+                                     'Authorization': 'Bearer '+tkn
+                                 })
+        res_json = response.json()
+        assert response.status_code == 404
+        assert res_json == {'detail': 'Ajuste con id: 10000 no encontrado'}
+
+
+def test_delete_ajuste():
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.delete(f'/ajustes/{ajuste.id_ajuste}',
+                                 headers={
+                                     'Authorization': 'Bearer '+tkn
+                                 })
+        ajuste_db = theDb\
+            .query(AjusteDB)\
+            .filter(AjusteDB.id_ajuste == ajuste.id_ajuste)\
+            .first()
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not ajuste_db

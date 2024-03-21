@@ -54,8 +54,23 @@ def edit_ajuste(id_ajs: int,
     if not ajuste_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Ajuste con id: {id_ajs} no encontrado')
+    # aplicado = db\
+    #     .query(RecibosDB)\
+    #     .filter(RecibosDB.id_ajuste == id_ajs)\
+    #     .order_by(RecibosDB.fecha.desc())\
+    #     .first()
     # TODO: Validar fecha_fin no menor a ultima aplicada
+    # if aplicado and ajuste_data.fecha_fin < aplicado.fecha:
+    #   raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                       detail=f'Ajuste con id: {id_ajs} ya aplicado, '
+    #                              'no se puede cambiar la fecha de fin '
+    #                              'a antes de {aplicado.fecha})
     # TODO: Validar fecha_inicio no cambiar si ya aplicada
+    # if aplicado and\
+    #    not ajuste_data.fecha_inicio == aplicado.ajuste.fecha_inicio:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                         detail=f'Ajuste con id: {id_ajs} ya aplicado, '
+    #                                'no se puede cambiar la fecha de inicio')
     del ajuste_data.id_empleado
     edited_data = ajuste_data.model_dump(exclude_unset=True)
     for key, value in edited_data.items():
@@ -64,3 +79,21 @@ def edit_ajuste(id_ajs: int,
     db.commit()
     db.refresh(ajuste_db)
     return ajuste_db
+
+
+def delete_ajuste(db: Session, id_ajs: int):
+    ajuste_db = db.query(AjusteDB).filter(AjusteDB.id_ajuste == id_ajs).first()
+    if not ajuste_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'Ajuste con id: {id_ajs} no encontrado')
+    # TODO: Validar que no esté aplicada
+    # aplicado = db\
+    #     .query(RecibosDB)\
+    #     .filter(RecibosDB.id_ajuste == id_ajs)\
+    #     .first()
+    # if aplicado:
+    #   raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                       detail=f'Ajuste con id: {id_ajs} ya aplicado, '
+    #                              'no se puede eliminar')
+    db.delete(ajuste_db)
+    db.commit()

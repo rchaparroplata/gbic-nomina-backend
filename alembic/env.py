@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from dependencies.database import Base
@@ -9,8 +8,8 @@ from models.ajustes import AjusteDB
 from models.bancos import BancosDB
 from models.colonias import ColoniaDB
 from models.empleados import EmpleadoDB
-from models.users import UserDB
 from models.prestamos import PrestamosDB
+from models.users import UserDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
