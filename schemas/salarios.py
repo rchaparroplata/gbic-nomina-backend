@@ -1,51 +1,40 @@
 from datetime import date
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from schemas.empleados import Empleado
 from schemas.users import User
 
 
-class PrestamoBase(BaseModel):
-    fecha_inicio: date
+class SalariosBase(BaseModel):
+    fecha_valido: date
     monto: float
-    monto_quincenal: float
-    comentarios: Optional[str] | None = None
     id_empleado: int
 
-    @model_validator(mode='after')
-    def validate_fechas(self) -> 'PrestamoBase':
-        m_t = self.monto
-        m_q = self.monto_quincenal
 
-        if m_q > m_t:
-            raise ValueError('El monto quicenal no puede ser mayor al total')
-        return self
-
-
-class PrestamoIn(PrestamoBase):
+class SalarioIn(SalariosBase):
     pass
 
 
-class PrestamoEdit(PrestamoBase):
+class SalarioEdit(SalariosBase):
     id_empleado: Optional[int] | None = None
 
 
-class Prestamo(PrestamoBase):
+class Salario(SalariosBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_prestamo: int
+    id_salario: int
     id_usuario: int
     fecha: date
     usuario: User
     empleado: Empleado
 
 
-class PrestamoOut(PrestamoBase):
+class SalarioOut(SalariosBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_prestamo: int
+    id_salario: int
     fecha: date
     usuario: str
     empleado: str

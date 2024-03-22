@@ -9,6 +9,7 @@ from models.bancos import BancosDB
 from models.colonias import ColoniaDB
 from models.empleados import EmpleadoDB
 from models.prestamos import PrestamosDB
+from models.salarios import SalariosDB
 from models.users import UserDB
 
 # this is the Alembic Config object, which provides

@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from routers import ajustes, bancos, empleados, prestamos, users
+from routers import ajustes, bancos, empleados, prestamos, salarios, users
 
 app = FastAPI(title='GBIC Nomina API')
 
@@ -9,6 +9,7 @@ app.include_router(ajustes.router)
 app.include_router(bancos.router)
 app.include_router(empleados.router)
 app.include_router(prestamos.router)
+app.include_router(salarios.router)
 app.include_router(users.router)
 
 
