@@ -67,6 +67,7 @@ def edit_prestamo(id_pres: int,
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
     #                         detail='EL monto total no puede ser menor a la '
     #                                f'suma de lo ya pagado (${monto_pagado})')
+    # TODO: Validar Fecha Ini si ya aplicada
     edited_data = input_data.model_dump(exclude_unset=True)
     for key, value in edited_data.items():
         setattr(prestamo_db, key, value)

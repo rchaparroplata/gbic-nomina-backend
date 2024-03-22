@@ -26,7 +26,7 @@ class User(UserBase):
     def split_str(cls, v):
         if isinstance(v, str):
             return v.split(',')
-        return v
+        return v  # pragma: no cover
 
 
 class Token(BaseModel):

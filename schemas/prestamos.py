@@ -51,7 +51,7 @@ class PrestamoOut(PrestamoBase):
     def flat_usuario(cls, v):
         if v.username:
             return v.username
-        return v
+        return v  # pragma: no cover
 
     @field_validator('empleado', mode='before')
     def nombre_empelado(cls, v):

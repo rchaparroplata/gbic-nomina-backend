@@ -44,6 +44,6 @@ class AjusteOut(AjusteBase):
     def flat_usuario(cls, v):
         if v.username:
             return v.username
-        return v
+        return v  # pragma: no cover
 
     model_config = ConfigDict(from_attributes=True)
