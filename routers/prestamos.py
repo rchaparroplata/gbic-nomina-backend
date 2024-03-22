@@ -5,10 +5,11 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from dependencies.database import get_db
-from dependencies.prestamos import (create_prestamo, edit_prestamo,
-                                    get_prestamos, prestamos_resp_edit)
+from dependencies.prestamos import (create_prestamo, delete_prestamo,
+                                    edit_prestamo, get_prestamos,
+                                    prestamos_resp_edit)
 from dependencies.users import get_current_active_user, user_responses
-from schemas.prestamos import PrestamoIn, PrestamoOut
+from schemas.prestamos import PrestamoEdit, PrestamoIn, PrestamoOut
 from schemas.users import User
 
 router = APIRouter(
@@ -53,10 +54,23 @@ def post_create_prestamo(
             response_model=PrestamoOut)
 def put_edit_prestamo(
     db: db_dependency,
-    edit_request: PrestamoIn,
+    edit_request: PrestamoEdit,
     id_prestamo: int,
     current_user: Annotated[User,
                             Security(get_current_active_user,
                                      scopes=["prestamos:write"])]):
     edited_prestamo = edit_prestamo(id_prestamo, edit_request, db)
     return PrestamoOut.model_validate(edited_prestamo)
+
+
+@router.delete('/{id_prestamo}',
+               status_code=status.HTTP_204_NO_CONTENT,
+               responses={**user_responses, **prestamos_resp_edit}
+               )
+def delete_delete_prestamo(
+    db: db_dependency,
+    id_prestamo: int,
+    current_user: Annotated[User,
+                            Security(get_current_active_user,
+                                     scopes=['prestamos:writer'])]):
+    delete_prestamo(db, id_prestamo)

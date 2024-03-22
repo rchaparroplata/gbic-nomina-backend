@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
 from starlette import status
 
-from dependencies.bancos import create_banco, edit_banco, get_bancos
+from dependencies.bancos import (create_banco, delete_banco, edit_banco,
+                                 get_bancos)
 from dependencies.database import get_db
 from dependencies.users import get_current_active_user, user_responses
 from schemas.bancos import BancoIn, BancoOut
@@ -59,3 +60,16 @@ def put_edit_banco(
 ):
     edited_banco = edit_banco(db, id_banco, edit_request)
     return BancoOut.model_validate(edited_banco)
+
+
+@router.delete('/{id_banco}',
+               status_code=status.HTTP_204_NO_CONTENT,
+               responses={**user_responses}
+               )
+def delete_delete_prestamo(
+    db: db_dependency,
+    id_banco: int,
+    current_user: Annotated[User,
+                            Security(get_current_active_user,
+                                     scopes=['bancos:writer'])]):
+    delete_banco(db, id_banco)

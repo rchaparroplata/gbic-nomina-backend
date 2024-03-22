@@ -56,8 +56,14 @@ def edit_banco(db: Session,
 
 def delete_banco(db: Session,
                  id_banco: int):
-    # TODO: To implement
-    # Verificar que exista el banco
-    # Verificar que no haya cuentas en ese banco
+    banco_db = db\
+        .query(BancosDB)\
+        .filter(BancosDB.id_banco == id_banco)\
+        .first()
+    if not banco_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'Banco con id: {id_banco} no encontrado')
+    # TODO: Verificar que no haya cuentas en ese banco
     # Eliminarlo
-    pass
+    db.delete(banco_db)
+    db.commit()

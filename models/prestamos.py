@@ -19,3 +19,4 @@ class PrestamosDB(Base):
     id_usuario = Column(Integer, ForeignKey(UserDB.id_user))
     id_empleado = Column(Integer, ForeignKey(EmpleadoDB.id_empleado))
     usuario = relationship("UserDB", lazy='joined')
+    empleado = relationship("EmpleadoDB", lazy='joined')

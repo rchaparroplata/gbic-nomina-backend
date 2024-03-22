@@ -88,7 +88,7 @@ def test_get_all_ajustes():
                                   'Authorization': 'Bearer '+tkn
                               })
         res_json = response.json()
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert len(res_json) == 1
         assert res_json[0]['motivo'] == 'test'
 
@@ -97,7 +97,7 @@ def test_get_all_ajustes_401():
     with TestClient(app) as client:
         response = client.get('/ajustes')
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert res_json == {'detail': 'Not authenticated'}
 
 
@@ -109,7 +109,7 @@ def test_get_all_ajustes_no_scope():
                                   'Authorization': 'Bearer '+tkn
                               })
         res_json = response.json()
-        assert response.status_code == 403
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -128,7 +128,7 @@ def test_create_ajuste():
                                    'id_empleado': 1
                                })
         res_json = response.json()
-        assert response.status_code == 201
+        assert response.status_code == status.HTTP_201_CREATED
         assert res_json['motivo'] == 'New Ajuste'
         assert res_json['id_ajuste'] is not None
 
@@ -136,7 +136,7 @@ def test_create_ajuste():
 def test_create_ajuste_401():
     with TestClient(app) as client:
         response = client.post('/ajustes')
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Not authenticated'}
 
 
@@ -155,7 +155,7 @@ def test_create_ajuste_no_scope():
                                    'id_empleado': 1
                                })
         res_json = response.json()
-        assert response.status_code == 403
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -174,7 +174,7 @@ def test_create_ajuste_fecha_fin():
                                    'id_empleado': 1
                                })
         res_json = response.json()
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert res_json['detail'][0]['msg'] ==\
             'Value error, La fecha final debe ser después de la inicial'
 
@@ -194,7 +194,7 @@ def test_edit_ajuste():
                                 'id_empleado': 1
                               })
         res_json = response.json()
-        assert response.status_code == 202
+        assert response.status_code == status.HTTP_202_ACCEPTED
         assert res_json['motivo'] == 'New Motivo'
         assert res_json['id_ajuste'] == ajuste.id_ajuste
 
@@ -214,7 +214,7 @@ def test_edit_ajuste_fields():
                                 'id_empleado': 100
                               })
         res_json = response.json()
-        assert response.status_code == 202
+        assert response.status_code == status.HTTP_202_ACCEPTED
         assert res_json['id_empleado'] == ajuste.id_ajuste
 
 
@@ -233,14 +233,14 @@ def test_edit_ajuste_404():
                                 'id_empleado': 1
                               })
         res_json = response.json()
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         assert res_json == {'detail': 'Ajuste con id: 10000 no encontrado'}
 
 
 def test_edit_ajuste_401():
     with TestClient(app) as client:
         response = client.put('/ajustes/1')
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Not authenticated'}
 
 
@@ -259,7 +259,7 @@ def test_edit_ajuste_no_scope():
                                   'id_empleado': 1
                               })
         res_json = response.json()
-        assert response.status_code == 403
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -278,7 +278,7 @@ def test_edit_ajuste_fecha_fin():
                                 'id_empleado': 100
                               })
         res_json = response.json()
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert res_json['detail'][0]['msg'] ==\
             'Value error, La fecha final debe ser después de la inicial'
 
@@ -295,6 +295,13 @@ def test_edit_ajuste_fecha_fin_aplicada():
     pass
 
 
+def test_delete_ajuste_401():
+    with TestClient(app) as client:
+        response = client.delete('/ajustes/1')
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.json() == {'detail': 'Not authenticated'}
+
+
 def test_delete_ajuste_404():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
@@ -303,8 +310,20 @@ def test_delete_ajuste_404():
                                      'Authorization': 'Bearer '+tkn
                                  })
         res_json = response.json()
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         assert res_json == {'detail': 'Ajuste con id: 10000 no encontrado'}
+
+
+def test_delete_ajuste_no_scope():
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.delete(f'/ajustes/{ajuste.id_ajuste}',
+                                 headers={
+                                     'Authorization': 'Bearer '+tkn
+                                 })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_delete_ajuste():

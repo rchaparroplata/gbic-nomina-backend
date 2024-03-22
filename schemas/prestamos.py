@@ -28,6 +28,10 @@ class PrestamoIn(PrestamoBase):
     pass
 
 
+class PrestamoEdit(PrestamoBase):
+    id_empleado: Optional[int] | None = None
+
+
 class Prestamo(PrestamoBase):
     model_config = ConfigDict(from_attributes=True)
     id_prestamo: int

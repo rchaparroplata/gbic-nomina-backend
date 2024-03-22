@@ -219,22 +219,52 @@ def test_edit_banco_deactivate_cascade():
     pass
 
 
-def test_delete_banco():
-    pass
-
-
 def test_delete_banco_401():
-    pass
+    with TestClient(app) as client:
+        response = client.delete('/bancos/1')
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.json() == {'detail': 'Not authenticated'}
 
 
 def test_delete_banco_404():
-    pass
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.delete('/bancos/10000',
+                                 headers={
+                                     'Authorization': 'Bearer '+tkn
+                                 })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert res_json == {'detail': 'Banco con id: 10000 no encontrado'}
 
 
 def test_delete_banco_no_scope():
-    pass
+    tkn = create_access_token(usr_scope, theDb).access_token
+    with TestClient(app) as client:
+        response = client.delete(f'/bancos/{banco.id_banco}',
+                                 headers={
+                                     'Authorization': 'Bearer '+tkn
+                                 })
+        res_json = response.json()
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
 def test_delete_banco_activo():
     # si hay cuentas usandolo no poder borrar
     pass
+
+
+def test_delete_banco():
+    tkn = create_access_token(usr, theDb).access_token
+    with TestClient(app) as client:
+        response = client.delete(f'/bancos/{banco.id_banco}',
+                                 headers={
+                                     'Authorization': 'Bearer '+tkn
+                                 })
+        banco_db = theDb\
+            .query(BancosDB)\
+            .filter(BancosDB.id_banco == banco.id_banco)\
+            .first()
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not banco_db
