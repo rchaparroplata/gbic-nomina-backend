@@ -46,7 +46,7 @@ def create_salario(db: Session,
     salarios_db = db\
         .query(SalariosDB)\
         .filter(SalariosDB.id_empleado == input_data.id_empleado)\
-        .order_by(SalariosDB.fecha_valido.desc)\
+        .order_by(SalariosDB.fecha_valido.desc())\
         .options(lazyload(SalariosDB.usuario))\
         .options(lazyload(SalariosDB.empleado))\
         .all()
@@ -69,13 +69,22 @@ def edit_salario(id_sal: int,
     if not salario_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Salario con id: {id_sal} no encontrado')
+    # TODO: Validar que no esté aplicada
+    # aplicado = db\
+    #     .query(RecibosDB)\
+    #     .filter(RecibosDB.id_salario == id_sal)\
+    #     .first()
+    # if aplicado:
+    #   raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                       detail=f'Salario con id: {id_sal} ya aplicado, '
+    #                              'no se puede editar')
     salarios_db = db\
         .query(SalariosDB)\
         .filter(
             (SalariosDB.id_empleado == input_data.id_empleado) and
             (SalariosDB.id_salario != id_sal)
         )\
-        .order_by(SalariosDB.fecha_valido.desc)\
+        .order_by(SalariosDB.fecha_valido.desc())\
         .options(lazyload(SalariosDB.usuario))\
         .options(lazyload(SalariosDB.empleado))\
         .all()
