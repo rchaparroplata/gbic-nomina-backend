@@ -3,8 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
-from schemas.users import User
 from schemas.empleados import Empleado
+from schemas.users import User
 
 
 class AjusteBase(BaseModel):

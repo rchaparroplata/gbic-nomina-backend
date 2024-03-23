@@ -4,10 +4,9 @@ from fastapi import APIRouter, Depends, Security
 from sqlalchemy.orm import Session
 from starlette import status
 
+from dependencies.cuentas import (create_cuenta, cuentas_resp_edit,
+                                  delete_cuenta, edit_cuenta, get_cuentas)
 from dependencies.database import get_db
-from dependencies.cuentas import (create_cuenta, delete_cuenta,
-                                  edit_cuenta, get_cuentas,
-                                  cuentas_resp_edit)
 from dependencies.users import get_current_active_user, user_responses
 from schemas.cuentas import CuentaEdit, CuentaIn, CuentaOut
 from schemas.users import User
