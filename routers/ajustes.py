@@ -71,5 +71,5 @@ def delete_delete_ajuste(
     id_ajuste: int,
     current_user: Annotated[User,
                             Security(get_current_active_user,
-                                     scopes=['ajustes:writer'])]):
+                                     scopes=['ajustes:write'])]):
     delete_ajuste(db, id_ajuste)

@@ -109,7 +109,8 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenData.model_validate(payload)
-        user = get_user_by_username(token_data.username, db)
+        user_db = get_user_by_username(token_data.username, db)
+        user = User.model_validate(user_db)
         if user is None:
             raise credentials_exception
         found = False
@@ -120,7 +121,7 @@ async def get_current_user(
                     break
             if not found:
                 raise scope_exception
-        return User.model_validate(user)
+        return user
     except (ValidationError, JWTError):
         raise credentials_exception
 

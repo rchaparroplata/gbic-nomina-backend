@@ -25,7 +25,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 def get_all_bancos(
     db: db_dependency,
     current_user: Annotated[User, Security(get_current_active_user,
-                                           scopes=['bancos:reader'])],
+                                           scopes=['bancos:read'])],
     skip: int = 0,
     limit: int = 10
 ):
@@ -41,7 +41,7 @@ def post_create_banco(
     db: db_dependency,
     create_request: BancoIn,
     current_user: Annotated[User, Security(get_current_active_user,
-                                           scopes=['bancos:writer'])]
+                                           scopes=['bancos:write'])]
 ):
     new_banco = create_banco(db, create_request)
     return BancoOut.model_validate(new_banco)
@@ -56,7 +56,7 @@ def put_edit_banco(
     edit_request: BancoIn,
     id_banco: int,
     current_user: Annotated[User, Security(get_current_active_user,
-                                           scopes=['bancos:writer'])]
+                                           scopes=['bancos:write'])]
 ):
     edited_banco = edit_banco(db, id_banco, edit_request)
     return BancoOut.model_validate(edited_banco)
@@ -71,5 +71,5 @@ def delete_delete_prestamo(
     id_banco: int,
     current_user: Annotated[User,
                             Security(get_current_active_user,
-                                     scopes=['bancos:writer'])]):
+                                     scopes=['bancos:write'])]):
     delete_banco(db, id_banco)

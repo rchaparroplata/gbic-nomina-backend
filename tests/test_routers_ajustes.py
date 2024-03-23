@@ -38,7 +38,7 @@ user_data = {
     'username': 'writer',
     'password': 'password',
     'nombre': 'name',
-    'scopes': ['ajustes:writer', 'ajustes:reader']
+    'scopes': ['ajustes:write', 'ajustes:read']
 }
 
 no_scope_user_data = {

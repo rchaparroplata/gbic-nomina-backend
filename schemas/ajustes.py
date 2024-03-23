@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from schemas.users import User
+from schemas.empleados import Empleado
 
 
 class AjusteBase(BaseModel):
@@ -33,17 +34,25 @@ class Ajuste(AjusteBase):
     id_usuario: int
     fecha: date
     usuario: User
+    empleado: Empleado
 
 
 class AjusteOut(AjusteBase):
     id_ajuste: int
     fecha: date
     usuario: str
+    empleado: str
 
     @field_validator('usuario', mode='before')
     def flat_usuario(cls, v):
         if v.username:
             return v.username
+        return v  # pragma: no cover
+
+    @field_validator('empleado', mode='before')
+    def nombre_empelado(cls, v):
+        if v.nombre:
+            return ' '.join([v.nombre, v.paterno, v.materno])
         return v  # pragma: no cover
 
     model_config = ConfigDict(from_attributes=True)

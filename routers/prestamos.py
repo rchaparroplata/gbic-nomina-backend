@@ -72,5 +72,5 @@ def delete_delete_prestamo(
     id_prestamo: int,
     current_user: Annotated[User,
                             Security(get_current_active_user,
-                                     scopes=['prestamos:writer'])]):
+                                     scopes=['prestamos:write'])]):
     delete_prestamo(db, id_prestamo)

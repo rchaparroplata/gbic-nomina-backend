@@ -23,7 +23,7 @@ user_data = {
     'username': 'writer',
     'password': 'password',
     'nombre': 'name',
-    'scopes': ['bancos:writer', 'bancos:reader']
+    'scopes': ['bancos:write', 'bancos:read']
 }
 
 no_scope_user_data = {

@@ -29,12 +29,12 @@ prestamos_resp_edit = {
 def get_prestamos(db: Session,
                   skip: int = 0,
                   limit: int = 10) -> list[PrestamoOut]:
-    prestamo_db = db.\
+    prestamos_db = db.\
         query(PrestamosDB)\
         .offset(skip)\
         .limit(limit).all()
     prestamos = [PrestamoOut.model_validate(prestamo)
-                 for prestamo in prestamo_db]
+                 for prestamo in prestamos_db]
     return prestamos
 
 

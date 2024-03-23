@@ -72,5 +72,5 @@ def delete_delete_salario(
     id_salario: int,
     current_user: Annotated[User,
                             Security(get_current_active_user,
-                                     scopes=['salarios:writer'])]):
+                                     scopes=['salarios:write'])]):
     delete_salario(db, id_salario)

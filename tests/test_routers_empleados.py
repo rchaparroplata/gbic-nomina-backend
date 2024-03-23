@@ -46,7 +46,7 @@ user_data = {
     'username': 'writer',
     'password': 'password',
     'nombre': 'name',
-    'scopes': ['empleados:writer', 'empleados:reader']
+    'scopes': ['empleados:write', 'empleados:read']
 
 }
 no_scope_user_data = {
