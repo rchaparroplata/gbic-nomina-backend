@@ -8,7 +8,7 @@ from dependencies.database import get_db
 from dependencies.empleados import (create_empleado, edit_empleado,
                                     get_empleados, resp_edit)
 from dependencies.users import get_current_active_user, user_responses
-from schemas.empleados import Empleado, EmpleadoIn
+from schemas.empleados import EmpleadoIn, EmpleadoOut
 from schemas.users import User
 
 router = APIRouter(
@@ -20,7 +20,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 @router.get('/',
-            response_model=list[Empleado],
+            response_model=list[EmpleadoOut],
             responses=user_responses)
 def get_all_empleados(
     db: db_dependency,
@@ -35,7 +35,7 @@ def get_all_empleados(
 
 @router.post('/',
              status_code=status.HTTP_201_CREATED,
-             response_model=Empleado,
+             response_model=EmpleadoOut,
              responses={**user_responses, **resp_edit})
 def post_create_empleado(
     db: db_dependency,
@@ -43,12 +43,12 @@ def post_create_empleado(
     current_user: Annotated[User, Security(get_current_active_user,
                                            scopes=["empleados:write"])]):
     new_empleado = create_empleado(db, create_request)
-    return Empleado.model_validate(new_empleado)
+    return EmpleadoOut.model_validate(new_empleado)
 
 
 @router.put('/{id_empleado}',
             status_code=status.HTTP_202_ACCEPTED,
-            response_model=Empleado,
+            response_model=EmpleadoOut,
             responses={**user_responses, **resp_edit})
 def put_edit_empleado(
     db: db_dependency,
@@ -58,4 +58,4 @@ def put_edit_empleado(
                             Security(get_current_active_user,
                                      scopes=["empleados:write"])]):
     edited_empleado = edit_empleado(id_empleado, edit_request, db)
-    return Empleado.model_validate(edited_empleado)
+    return EmpleadoOut.model_validate(edited_empleado)

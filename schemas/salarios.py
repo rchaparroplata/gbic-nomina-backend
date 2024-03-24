@@ -7,21 +7,21 @@ from schemas.empleados import Empleado
 from schemas.users import User
 
 
-class SalariosBase(BaseModel):
+class SalarioBase(BaseModel):
     fecha_valido: date
     monto: float
     id_empleado: int
 
 
-class SalarioIn(SalariosBase):
+class SalarioIn(SalarioBase):
     pass
 
 
-class SalarioEdit(SalariosBase):
+class SalarioEdit(SalarioBase):
     id_empleado: Optional[int] | None = None
 
 
-class Salario(SalariosBase):
+class Salario(SalarioBase):
     model_config = ConfigDict(from_attributes=True)
 
     id_salario: int
@@ -31,11 +31,7 @@ class Salario(SalariosBase):
     empleado: Empleado
 
 
-class SalarioOut(SalariosBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    id_salario: int
-    fecha: date
+class SalarioOut(Salario):
     usuario: str
     empleado: str
 

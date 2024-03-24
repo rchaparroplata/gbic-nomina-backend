@@ -26,5 +26,10 @@ class EmpleadoIn(EmpleadoBase):
 
 class Empleado(EmpleadoBase):
     model_config = ConfigDict(from_attributes=True)
+
     id_empleado: int
     colonia: Colonia
+
+
+class EmpleadoOut(Empleado):
+    pass

@@ -66,7 +66,7 @@ def put_edit_banco(
                status_code=status.HTTP_204_NO_CONTENT,
                responses={**user_responses}
                )
-def delete_delete_prestamo(
+def delete_delete_banco(
     db: db_dependency,
     id_banco: int,
     current_user: Annotated[User,

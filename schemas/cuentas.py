@@ -48,12 +48,7 @@ class Cuenta(CuentaBase):
     banco: Banco
 
 
-class CuentaOut(CuentaBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    id_cuenta: int
-    id_usuario: int
-    fecha: date
+class CuentaOut(Cuenta):
     usuario: str
     empleado: str
     banco: str

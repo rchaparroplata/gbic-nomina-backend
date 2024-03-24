@@ -30,6 +30,7 @@ class AjusteIn(AjusteBase):
 
 class Ajuste(AjusteBase):
     model_config = ConfigDict(from_attributes=True)
+
     id_ajuste: int
     id_usuario: int
     fecha: date
@@ -37,9 +38,7 @@ class Ajuste(AjusteBase):
     empleado: Empleado
 
 
-class AjusteOut(AjusteBase):
-    id_ajuste: int
-    fecha: date
+class AjusteOut(Ajuste):
     usuario: str
     empleado: str
 
@@ -55,4 +54,3 @@ class AjusteOut(AjusteBase):
             return ' '.join([v.nombre, v.paterno, v.materno])
         return v  # pragma: no cover
 
-    model_config = ConfigDict(from_attributes=True)

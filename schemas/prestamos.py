@@ -42,11 +42,7 @@ class Prestamo(PrestamoBase):
     empleado: Empleado
 
 
-class PrestamoOut(PrestamoBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    id_prestamo: int
-    fecha: date
+class PrestamoOut(Prestamo):
     usuario: str
     empleado: str
 

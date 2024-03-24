@@ -11,8 +11,9 @@ class BancoIn(BancoBase):
 
 
 class Banco(BancoBase):
-    id_banco: int
     model_config = ConfigDict(from_attributes=True)
+    
+    id_banco: int
 
 
 class BancoOut(Banco):

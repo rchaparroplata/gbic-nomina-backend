@@ -9,6 +9,7 @@ class ColoniaBase(BaseModel):
 
 
 class Colonia(ColoniaBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id_colonia: int
 
-    model_config = ConfigDict(from_attributes=True)

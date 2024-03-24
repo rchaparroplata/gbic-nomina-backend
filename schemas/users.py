@@ -20,6 +20,7 @@ class UserUpdate(UserIn):
 
 class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
+
     id_user: int
 
     @field_validator('scopes', mode='before')
@@ -27,6 +28,10 @@ class User(UserBase):
         if isinstance(v, str):
             return v.split(',')
         return v  # pragma: no cover
+
+
+class UserOut(User):
+    pass
 
 
 class Token(BaseModel):

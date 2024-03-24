@@ -9,7 +9,7 @@ from dependencies.database import get_db
 from dependencies.users import (create_access_token, create_user, edit_user,
                                 get_current_active_user, get_users,
                                 user_resp_edit, user_responses)
-from schemas.users import Token, User, UserIn, UserUpdate
+from schemas.users import Token, User, UserIn, UserOut, UserUpdate
 
 router = APIRouter(
     prefix='/users',
@@ -37,7 +37,7 @@ user_dependency = Annotated[dict, Depends(get_current_active_user)]
 @router.post("/",
              status_code=status.HTTP_201_CREATED,
              responses=user_responses,
-             response_model=User)
+             response_model=UserOut)
 async def post_create_user(db: db_dependency,
                            create_user_request: UserIn,
                            current_user: Annotated[User, Security(
@@ -46,13 +46,13 @@ async def post_create_user(db: db_dependency,
                                 )]
                            ):
     new_user = create_user(create_user_request, db)
-    return User.model_validate(new_user)
+    return UserOut.model_validate(new_user)
 
 
 @router.put('/{id_user}',
             status_code=status.HTTP_202_ACCEPTED,
             responses={**user_responses, **user_resp_edit},
-            response_model=User)
+            response_model=UserOut)
 async def put_edit_user(db: db_dependency,
                         edit_user_request: UserUpdate,
                         current_user: Annotated[User, Security(
@@ -65,7 +65,7 @@ async def put_edit_user(db: db_dependency,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail='No puedes editar al Administardor')
     edited_user = edit_user(id_user, edit_user_request, db)
-    return User.model_validate(edited_user)
+    return UserOut.model_validate(edited_user)
 
 
 @router.post('/token', response_model=Token, responses=user_responses)
@@ -75,12 +75,12 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     return token
 
 
-@router.get('/me', response_model=User, responses=user_responses,)
+@router.get('/me', response_model=UserOut, responses=user_responses,)
 def me(current_user: user_dependency, db: db_dependency):
     return current_user
 
 
-@router.get('/', response_model=list[User], responses=user_responses,)
+@router.get('/', response_model=list[UserOut], responses=user_responses,)
 async def get_all_users(
         db: db_dependency,
         current_user: Annotated[User, Security(get_current_active_user,
