@@ -130,24 +130,6 @@ def test_get_all_cuentas_no_scope():
         assert res_json == {'detail': 'Sin Privilegios Necesarios'}
 
 
-# def test_edit_cuenta_fecha_mayor():
-#     tkn = create_access_token(usr, theDb).access_token
-#     with TestClient(app) as client:
-#         response = client.put(f'/cuentas/{cuenta.id_cuenta}',
-#                               headers={
-#                                   'Authorization': 'Bearer '+tkn
-#                               },
-#                               json={
-#                                   'fecha_valido': '2024-02-01',
-#                                   'monto': 1010.00,
-#                                   'id_empleado': empleado.id_empleado,
-#                               })
-#         res_json = response.json()
-#         assert response.status_code == status.HTTP_400_BAD_REQUEST
-#         assert res_json['detail'] ==\
-#             f'La fecha de inicio debe ser mayor a {cuenta.fecha_valido}'
-
-
 def test_edit_cuenta():
     tkn = create_access_token(usr, theDb).access_token
     with TestClient(app) as client:
@@ -246,27 +228,13 @@ def test_edit_cuenta_fields():
         assert res_json['numero'] == ahorro.numero
         assert res_json['id_empleado'] == ahorro.id_empleado
 
-# def test_edit_cuenta_fecha_ini_aplicada():
-#     # TODO: Validar no cambiar si ya fue aplicado
-#     pass
 
-
-# def test_create_cuenta_fecha_valido():
-#     tkn = create_access_token(usr, theDb).access_token
-#     with TestClient(app) as client:
-#         response = client.post('/cuentas/',
-#                                headers={
-#                                   'Authorization': 'Bearer '+tkn
-#                                },
-#                                json={
-#                                   'fecha_valido': '2024-03-01',
-#                                   'monto': 10,
-#                                   'id_empleado': empleado.id_empleado
-#                                })
-#         res_json = response.json()
-#         assert response.status_code == status.HTTP_400_BAD_REQUEST
-#         assert res_json['detail'] ==\
-#             f'La fecha de inicio debe ser mayor a {cuenta.fecha_valido}'
+def test_edit_cuenta_utilizada():
+    # res_json = response.json()
+    # assert response.status_code == status.HTTP_400_BAD_REQUEST
+    # assert res_json == {'detail': f'Cuenta con id: {cuenta.id_cuenta} '
+    #                     'ya utilizada, no se puede editar'}
+    pass
 
 
 def test_create_cuenta():
@@ -327,13 +295,12 @@ def test_delete_cuenta_404():
         assert res_json == {'detail': 'Cuenta con id: 10000 no encontrada'}
 
 
-# def test_delete_cuenta_aplicada():
-#     # TODO: Validar no cambiar fecha_ini < last_aplicada
-#     # res_json = response.json()
-#     # assert response.status_code == status.HTTP_400_BAD_REQUEST
-#     # assert res_json == {'detail': f'Cuenta con id: {cuenta.id_cuenta} '
-#     #                     'ya aplicado, no se puede eliminar'}
-#     pass
+def test_delete_cuenta_utilizada():
+    # res_json = response.json()
+    # assert response.status_code == status.HTTP_400_BAD_REQUEST
+    # assert res_json == {'detail': f'Cuenta con id: {cuenta.id_cuenta} '
+    #                     'ya utilizada, no se puede eliminar'}
+    pass
 
 
 def test_delete_cuenta():
