@@ -1,6 +1,7 @@
 from datetime import date
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from schemas.bancos import Banco
 from schemas.empleados import Empleado
@@ -18,6 +19,14 @@ class CuentaBase(BaseModel):
     activa: bool = True
     id_banco: int
     id_empleado: int
+    tipo_txt: Optional[str] | None = None
+
+    @model_validator(mode='after')
+    def validate_fechas(self) -> 'CuentaBase':
+        t = self.tipo
+        self.tipo_txt = tipo_dict.get(t)
+
+        return self
 
 
 class CuentaIn(CuentaBase):
@@ -37,11 +46,6 @@ class Cuenta(CuentaBase):
     usuario: User
     empleado: Empleado
     banco: Banco
-    tipo_txt: str
-
-    @field_validator('tipo_txt', mode='before')
-    def fill_tipo(cls, v):
-        return tipo_dict.get(cls.tipo)
 
 
 class CuentaOut(CuentaBase):

@@ -110,9 +110,9 @@ async def get_current_user(
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenData.model_validate(payload)
         user_db = get_user_by_username(token_data.username, db)
-        user = User.model_validate(user_db)
-        if user is None:
+        if user_db is None:
             raise credentials_exception
+        user = User.model_validate(user_db)
         found = False
         if 'Admin' not in user.scopes and len(security_scopes.scopes) != 0:
             for scope in security_scopes.scopes:

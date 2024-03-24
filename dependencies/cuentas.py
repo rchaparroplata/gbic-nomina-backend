@@ -41,7 +41,8 @@ def get_cuentas(db: Session,
 def create_cuenta(db: Session,
                   input_data: CuentaIn,
                   current_user: User) -> CuentasDB:
-    cuenta_create = CuentasDB(**input_data.model_dump(exclude_unset=True),
+    cuenta_create = CuentasDB(**input_data.model_dump(exclude_unset=True,
+                                                      exclude=['tipo_txt']),
                               id_usuario=current_user.id_user)
     db.add(cuenta_create)
     db.commit()
