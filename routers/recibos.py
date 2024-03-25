@@ -7,7 +7,7 @@ from dependencies.database import get_db
 from dependencies.recibos import (get_recibo, get_recibos,
                                   get_recibos_dispersion, get_recibos_empleado)
 from dependencies.users import get_current_active_user, user_responses
-from schemas.recibos import ReciboOut, ReciboConDetalles
+from schemas.recibos import ReciboConDetalles, ReciboOut
 from schemas.users import User
 
 router = APIRouter(
