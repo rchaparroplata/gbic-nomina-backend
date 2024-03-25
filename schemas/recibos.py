@@ -1,4 +1,5 @@
 from datetime import date
+
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from schemas.ajustes import Ajuste
