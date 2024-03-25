@@ -1,6 +1,8 @@
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import (BaseModel, ConfigDict, Field, field_validator,
+                      model_validator)
+from pydantic.json_schema import SkipJsonSchema
 
 from schemas.ajustes import Ajuste
 from schemas.cuentas import Cuenta
@@ -29,7 +31,7 @@ class Recibo(ReciboBase):
 
 
 class ReciboOut(Recibo):
-    dispersion: None
+    dispersion: SkipJsonSchema[Dispersion] = Field(exclude=True)
     empleado: str
     periodo: int
     periodo_fecha: date
@@ -71,10 +73,14 @@ class ReciboDetalles(ReciboDetallesbase):
 
 
 class ReciboDetallesOut(ReciboDetalles):
-    ajuste: None
-    prestamo: None
-    salario: None
-    cuenta: None
+    ajuste: SkipJsonSchema[Ajuste] = Field(exclude=True)
+    prestamo: SkipJsonSchema[Prestamo] = Field(exclude=True)
+    salario: SkipJsonSchema[Salario] = Field(exclude=True)
+    id_recibo: SkipJsonSchema[int] = Field(exclude=True)
+    id_ajuste: SkipJsonSchema[int] = Field(exclude=True)
+    id_prestamo: SkipJsonSchema[int] = Field(exclude=True)
+    id_salario: SkipJsonSchema[int] = Field(exclude=True)
+    id_cuenta: SkipJsonSchema[int] = Field(exclude=True)
     id_externo: int
     texto: str
     monto: float
