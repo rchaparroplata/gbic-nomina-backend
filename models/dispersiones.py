@@ -17,10 +17,10 @@ class DispersionesDB(Base):
     total = Column(Float)
     id_usuario = Column(Integer, ForeignKey(UserDB.id_user))
     usuario = relationship('UserDB', lazy='joined')
-    detalles = relationship('DisepersionesDetalleDB')
+    detalles = relationship('DispersionesDetalleDB')
 
 
-class DisepersionesDetalleDB(Base):
+class DispersionesDetalleDB(Base):
     __tablename__ = 'dispersiones_detalle'
 
     id_dispersiones_detalle = Column(Integer, primary_key=True, index=True)

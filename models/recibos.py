@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from dependencies.database import Base
 from models.ajustes import AjusteDB
 from models.cuentas import CuentasDB
-from models.dispersiones import DisepersionesDB
+from models.dispersiones import DispersionesDB
 from models.empleados import EmpleadoDB
 from models.prestamos import PrestamosDB
 from models.salarios import SalariosDB
@@ -15,14 +15,14 @@ class RecibosDB(Base):
 
     id_recibo = Column(Integer, primary_key=True, index=True)
     id_emplado = Column(Integer, ForeignKey(EmpleadoDB.id_empleado))
-    id_dispersion = Column(Integer, ForeignKey(DisepersionesDB.id_dispersion))
+    id_dispersion = Column(Integer, ForeignKey(DispersionesDB.id_dispersion))
     monto = Column(Float)
     empleado = relationship('EmpleadoDB', lazy='joined')
     dispersion = relationship('DispersionDB', lazy='joined')
     detalles = relationship('RecibosDetalles')
 
 
-class RecibosDetalle(Base):
+class RecibosDetalleDB(Base):
     __tablename__ = 'recibos_detalle'
 
     id_recibos_detalle = Column(Integer, primary_key=True, index=True)

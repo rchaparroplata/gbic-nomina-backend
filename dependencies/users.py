@@ -22,7 +22,7 @@ oauth2_bearer = OAuth2PasswordBearer(tokenUrl='users/token')
 
 
 user_responses = {
-    status.HTTP_400_BAD_REQUEST: {
+    status.HTTP_403_FORBIDDEN: {
         'content': {
             'application/json': {
                 'schema': {
@@ -138,7 +138,7 @@ def get_current_active_user(
         current_user: Annotated[User, Depends(get_current_user)]
         ):
     if not current_user.activo:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail="Usuario Desactivado")
     return current_user
 

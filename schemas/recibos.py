@@ -90,10 +90,10 @@ class ReciboDetallesOut(ReciboDetalles):
     tipo: str
 
     @model_validator(mode='after')
-    def flat_fields(self) -> 'ReciboOut':
+    def flat_fields(self) -> 'ReciboDetallesOut':
         self.banco = self.cuenta.banco.nombre
-        self.cuenta = self.cuenta.numero
         self.tipo = self.cuenta.tipo_txt
+        self.cuenta = self.cuenta.numero
 
         if self.prestamo:
             self.id_externo = self.prestamo.id_prestamo

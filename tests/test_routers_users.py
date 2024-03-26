@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from fastapi.testclient import TestClient
+from starlette import status
 
 from dependencies.database import Base, get_db
 from dependencies.users import create_access_token, create_user, encode_token
@@ -100,7 +101,7 @@ def test_create_access_token():
 def test_get_current_user_401():
     with TestClient(app) as client:
         response = client.get('/users/me')
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Not authenticated'}
 
 
@@ -111,7 +112,7 @@ def test_get_current_inactive_user():
                               headers={
                                   'Authorization': 'Bearer '+inactive_tkn
                               })
-        assert response.status_code == 400
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json() == {'detail': 'Usuario Desactivado'}
 
 
@@ -122,7 +123,7 @@ def test_bad_token():
                               headers={
                                   'Authorization': 'Bearer '+bad_tkn
                               })
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Could not validate credentials'}
 
 
@@ -133,7 +134,7 @@ def test_get_current_user():
                               headers={
                                   'Authorization': 'Bearer '+reader_tkn
                               })
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         res_json = response.json()
         assert res_json['username'] == reader_user_data['username']
         assert res_json['nombre'] == reader_user_data['nombre']
@@ -143,7 +144,7 @@ def test_get_current_user():
 def test_get_all_users_401():
     with TestClient(app) as client:
         response = client.get('/users')
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Not authenticated'}
 
 
@@ -152,7 +153,7 @@ def test_get_user_token():
         response = client.post('/users/token', data={
             "username": admin_user_data.get('username'),
             "password": admin_user_data.get('password')})
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
 
 
 def test_get_user_token_false_user():
@@ -161,7 +162,7 @@ def test_get_user_token_false_user():
             "username": false_user_data.get('username'),
             "password": false_user_data.get('password')})
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert res_json == {'detail': 'Usuario y/o Password no validos'}
 
 
@@ -171,7 +172,7 @@ def test_get_user_token_wrong_pass():
             "username": access_user_data.get('username'),
             "password": false_user_data.get('password')})
         res_json = response.json()
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert res_json == {'detail': 'Usuario y/o Password no validos'}
 
 
@@ -182,7 +183,7 @@ def test_get_all_users_no_scope():
                               headers={
                                   'Authorization': 'Bearer '+access_tkn
                               })
-        assert response.status_code == 403
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -193,7 +194,7 @@ def test_get_all_users():
                               headers={
                                   'Authorization': 'Bearer '+reader_tkn
                               })
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         res_json = response.json()
         assert len(res_json) == 6
 
@@ -205,7 +206,7 @@ def test_get_all_users_limit():
                               headers={
                                   'Authorization': 'Bearer '+reader_tkn
                               })
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         res_json = response.json()
         assert len(res_json) == 2
 
@@ -217,7 +218,7 @@ def test_get_all_users_admin():
                               headers={
                                   'Authorization': 'Bearer '+admin_tkn
                               })
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         res_json = response.json()
         assert len(res_json) == 6
 
@@ -225,7 +226,7 @@ def test_get_all_users_admin():
 def test_create_user_401():
     with TestClient(app) as client:
         response = client.post('/users')
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Not authenticated'}
 
 
@@ -242,7 +243,7 @@ def test_create_user():
                                   'password': 'EsUnSecreto',
                                   'scopes': ['empty']
                                 })
-        assert response.status_code == 201
+        assert response.status_code == status.HTTP_201_CREATED
         res_json = response.json()
         assert res_json['username'] == 'UserNew'
 
@@ -258,7 +259,7 @@ def test_create_user_missing_field():
                                   'nombre': 'Usuario New',
                                   'scopes': ['empty']
                                 })
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         res_json = response.json()
         assert res_json['detail'][0]['msg'] == 'Field required'
         assert res_json['detail'][0]['loc'] == ['body', 'username']
@@ -272,7 +273,7 @@ def test_deactivate_user():
                               headers={
                                   'Authorization': 'Bearer '+access_tkn
                               })
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         res_json = response.json()
         assert res_json['username'] == access2_user_data['username']
         # Edit DB to deActivate
@@ -285,7 +286,7 @@ def test_deactivate_user():
                               headers={
                                   'Authorization': 'Bearer '+access_tkn
                               })
-        assert response.status_code == 400
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json() == {'detail': 'Usuario Desactivado'}
     pass
 
@@ -302,7 +303,7 @@ def test_valid_token_invalid_user():
                               headers={
                                   'Authorization': 'Bearer '+token
                               })
-        assert response.status_code == 401
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {'detail': 'Could not validate credentials'}
 
 
@@ -319,7 +320,7 @@ def test_create_existing_user():
                                   'password': 'EsUnSecreto',
                                   'scopes': ['empty']
                                 })
-        assert response.status_code == 400
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         res_json = response.json()
         assert res_json['detail'] == 'Usuario ya existente'
 
@@ -337,7 +338,7 @@ def test_create_user_no_scope():
                                   'password': 'EsUnSecreto',
                                   'scopes': ['empty']
                                 })
-        assert response.status_code == 403
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -355,7 +356,7 @@ def test_edit_user():
                                   'scopes': ['empty'],
                                   'activo': True
                               })
-        assert response.status_code == 202
+        assert response.status_code == status.HTTP_202_ACCEPTED
         res_json = response.json()
         assert res_json['username'] == 'EditedUsername'
 
@@ -373,7 +374,7 @@ def test_edit_user_no_password():
                                   'scopes': ['empty'],
                                   'activo': True
                               })
-        assert response.status_code == 202
+        assert response.status_code == status.HTTP_202_ACCEPTED
         res_json = response.json()
         assert res_json['username'] == 'EditedUsernameAgain'
 
@@ -391,7 +392,7 @@ def test_edit_admin_not_allowed():
                                   'scopes': ['empty'],
                                   'activo': True
                               })
-        assert response.status_code == 400
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         res_json = response.json()
         assert res_json == {'detail': 'No puedes editar al Administardor'}
 
@@ -409,7 +410,7 @@ def test_edit_user_no_scope():
                                   'scopes': ['empty'],
                                   'activo': True
                               })
-        assert response.status_code == 403
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json() == {'detail': 'Sin Privilegios Necesarios'}
 
 
@@ -426,6 +427,6 @@ def test_edit_user_non_exist():
                                   'scopes': ['empty'],
                                   'activo': True
                               })
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         res_json = response.json()
         assert res_json == {'detail': 'Usuario con id: 100 no encontrado'}

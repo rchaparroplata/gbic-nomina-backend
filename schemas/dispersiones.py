@@ -1,6 +1,8 @@
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import (BaseModel, ConfigDict, Field, field_validator,
+                      model_validator)
+from pydantic.json_schema import SkipJsonSchema
 
 from schemas.cuentas import Cuenta
 from schemas.users import User
@@ -26,6 +28,7 @@ class Dispersion(DispersionBase):
 
 
 class DispersionOut(Dispersion):
+    id_usuario: SkipJsonSchema[int] = Field(exclude=True)
     usuario: str
 
     @field_validator('usuario', mode='before')
@@ -35,18 +38,37 @@ class DispersionOut(Dispersion):
         return v  # pragma: no cover
 
 
-class _DispersionDetallesBase(BaseModel):
+class DispersionDetallesBase(BaseModel):
     id_dispersion: int
     id_cuenta: int
     monto: float
 
 
-class DispersionDetalles(_DispersionDetallesBase):
+class DispersionDetalles(DispersionDetallesBase):
     model_config = ConfigDict(from_attributes=True)
 
     cuenta: Cuenta
     id_dispersion_detalle: int
 
 
+class DispersionDetallesOut(DispersionDetalles):
+    id_dispersion: SkipJsonSchema[int] = Field(exclude=True)
+    id_cuenta: SkipJsonSchema[int] = Field(exclude=True)
+    banco: str
+    cuenta: str
+    empleado: str
+    tipo: str
+
+    @model_validator(mode='after')
+    def flat_fields(self) -> 'DispersionDetallesOut':
+        with self.cuenta as c:
+            self.banco = c.banco.nombre
+            with c.empleado as e:
+                self.empleado = ' '.join([e.nombre, e.paterno, e.materno])
+            self.tipo = c.tipo_txt
+            self.cuenta = c.numero
+        return self
+
+
 class DispersionConDetalles(DispersionOut):
-    detalles: list[DispersionDetalles]
+    detalles: list[DispersionDetallesOut]
