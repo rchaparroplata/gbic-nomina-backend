@@ -1,9 +1,8 @@
 from datetime import date
 from typing import Optional
 
-from pydantic import (BaseModel, ConfigDict, Field, field_validator,
+from pydantic import (BaseModel, ConfigDict, field_validator,
                       model_validator)
-from pydantic.json_schema import SkipJsonSchema
 
 from schemas.bancos import Banco
 from schemas.empleados import Empleado
