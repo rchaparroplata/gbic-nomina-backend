@@ -5,7 +5,7 @@ from dependencies.database import Base
 from models.colonias import ColoniaDB
 
 
-class EmpleadoDB(Base):
+class EmpleadosDB(Base):
     __tablename__ = 'empleados'
 
     id_empleado = Column(Integer, primary_key=True, index=True)

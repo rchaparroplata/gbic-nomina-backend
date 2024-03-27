@@ -4,7 +4,7 @@ from dependencies.database import Base, get_db
 from dependencies.users import create_access_token, create_user
 from main import app
 from models.colonias import ColoniaDB
-from models.empleados import EmpleadoDB
+from models.empleados import EmpleadosDB
 from schemas.users import UserIn
 from tests.core import engine, ovrd_get_db
 
@@ -58,8 +58,8 @@ no_scope_user_data = {
 
 usr = UserIn(**user_data)
 usr_scope = UserIn(**no_scope_user_data)
-empleado = EmpleadoDB(**empleado_data)
-empleado2 = EmpleadoDB(**empleado2_data)
+empleado = EmpleadosDB(**empleado_data)
+empleado2 = EmpleadosDB(**empleado2_data)
 colonia = ColoniaDB(**colonia_data)
 
 

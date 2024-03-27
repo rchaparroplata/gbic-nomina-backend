@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from models.ajustes import AjusteDB
+from models.ajustes import AjustesDB
 from schemas.ajustes import AjusteIn, AjusteOut
 from schemas.users import User
 
@@ -29,7 +29,7 @@ def get_ajustes(db: Session,
                 skip: int = 0,
                 limit: int = 10) -> list[AjusteOut]:
     ajustes_db = db.\
-        query(AjusteDB)\
+        query(AjustesDB)\
         .offset(skip)\
         .limit(limit).all()
     ajustes = [AjusteOut.model_validate(ajuste) for ajuste in ajustes_db]
@@ -38,9 +38,9 @@ def get_ajustes(db: Session,
 
 def create_ajuste(db: Session,
                   ajuste_data: AjusteIn,
-                  current_user: User) -> AjusteDB:
-    ajuste_create = AjusteDB(**ajuste_data.model_dump(exclude_unset=True),
-                             id_usuario=current_user.id_user)
+                  current_user: User) -> AjustesDB:
+    ajuste_create = AjustesDB(**ajuste_data.model_dump(exclude_unset=True),
+                              id_usuario=current_user.id_user)
     db.add(ajuste_create)
     db.commit()
     db.refresh(ajuste_create)
@@ -50,7 +50,10 @@ def create_ajuste(db: Session,
 def edit_ajuste(id_ajs: int,
                 ajuste_data: AjusteIn,
                 db: Session):
-    ajuste_db = db.query(AjusteDB).filter(AjusteDB.id_ajuste == id_ajs).first()
+    ajuste_db = db\
+        .query(AjustesDB)\
+        .filter(AjustesDB.id_ajuste == id_ajs)\
+        .first()
     if not ajuste_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Ajuste con id: {id_ajs} no encontrado')
@@ -82,7 +85,10 @@ def edit_ajuste(id_ajs: int,
 
 
 def delete_ajuste(db: Session, id_ajs: int):
-    ajuste_db = db.query(AjusteDB).filter(AjusteDB.id_ajuste == id_ajs).first()
+    ajuste_db = db\
+        .query(AjustesDB)\
+        .filter(AjustesDB.id_ajuste == id_ajs)\
+        .first()
     if not ajuste_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'Ajuste con id: {id_ajs} no encontrado')

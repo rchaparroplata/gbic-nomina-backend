@@ -9,7 +9,7 @@ from main import app
 from models.bancos import BancosDB
 from models.colonias import ColoniaDB
 from models.cuentas import CuentasDB
-from models.empleados import EmpleadoDB
+from models.empleados import EmpleadosDB
 from schemas.users import UserIn
 from tests.core import engine, ovrd_get_db
 
@@ -72,7 +72,7 @@ nomina_data = {
 }
 usr = UserIn(**user_data)
 usr_scope = UserIn(**no_scope_user_data)
-empleado = EmpleadoDB(**empleado_data)
+empleado = EmpleadosDB(**empleado_data)
 colonia = ColoniaDB(**colonia_data)
 ahorro = CuentasDB(**ahorro_data)
 nomina = CuentasDB(**nomina_data)

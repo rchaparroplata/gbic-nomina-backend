@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 from pydantic import (BaseModel, ConfigDict, Field, field_validator,
                       model_validator)
@@ -48,26 +49,33 @@ class DispersionDetalles(DispersionDetallesBase):
     model_config = ConfigDict(from_attributes=True)
 
     cuenta: Cuenta
-    id_dispersion_detalle: int
+    id_dispersiones_detalle: int
 
 
 class DispersionDetallesOut(DispersionDetalles):
     id_dispersion: SkipJsonSchema[int] = Field(exclude=True)
     id_cuenta: SkipJsonSchema[int] = Field(exclude=True)
+    cuenta_tmp: SkipJsonSchema[Cuenta] = Field(exclude=True)
     banco: str
-    cuenta: str
+    cuenta: str | None = None
     empleado: str
     tipo: str
 
-    @model_validator(mode='after')
-    def flat_fields(self) -> 'DispersionDetallesOut':
-        with self.cuenta as c:
-            self.banco = c.banco.nombre
-            with c.empleado as e:
-                self.empleado = ' '.join([e.nombre, e.paterno, e.materno])
-            self.tipo = c.tipo_txt
-            self.cuenta = c.numero
-        return self
+    @model_validator(mode="wrap")
+    def flat_fields(self, handler) -> 'DispersionDetallesOut':
+        c = self.cuenta
+        e = c.empleado
+        numero = c.numero
+        self.banco = c.banco.nombre
+        self.empleado = ' '.join([e.nombre, e.paterno, e.materno])
+        self.cuenta_tmp = self.cuenta
+        del self.cuenta
+        self.tipo = ''
+        validated_self = handler(self)
+        validated_self.cuenta = numero
+        validated_self.tipo = validated_self.cuenta_tmp.tipo_txt
+        del validated_self.cuenta_tmp
+        return validated_self
 
 
 class DispersionConDetalles(DispersionOut):

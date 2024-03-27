@@ -6,9 +6,9 @@ from starlette import status
 from dependencies.database import Base, get_db
 from dependencies.users import create_access_token, create_user
 from main import app
-from models.ajustes import AjusteDB
+from models.ajustes import AjustesDB
 from models.colonias import ColoniaDB
-from models.empleados import EmpleadoDB
+from models.empleados import EmpleadosDB
 from schemas.users import UserIn
 from tests.core import engine, ovrd_get_db
 
@@ -59,9 +59,9 @@ ajuste_data = {
 
 usr = UserIn(**user_data)
 usr_scope = UserIn(**no_scope_user_data)
-empleado = EmpleadoDB(**empleado_data)
+empleado = EmpleadosDB(**empleado_data)
 colonia = ColoniaDB(**colonia_data)
-ajuste = AjusteDB(**ajuste_data)
+ajuste = AjustesDB(**ajuste_data)
 
 
 def setup():
@@ -334,8 +334,8 @@ def test_delete_ajuste():
                                      'Authorization': 'Bearer '+tkn
                                  })
         ajuste_db = theDb\
-            .query(AjusteDB)\
-            .filter(AjusteDB.id_ajuste == ajuste.id_ajuste)\
+            .query(AjustesDB)\
+            .filter(AjustesDB.id_ajuste == ajuste.id_ajuste)\
             .first()
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not ajuste_db

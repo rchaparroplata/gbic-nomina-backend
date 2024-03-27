@@ -4,11 +4,11 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from dependencies.database import Base
-from models.ajustes import AjusteDB
+from models.ajustes import AjustesDB
 from models.bancos import BancosDB
 from models.colonias import ColoniaDB
 from models.dispersiones import DispersionesDB, DispersionesDetalleDB
-from models.empleados import EmpleadoDB
+from models.empleados import EmpleadosDB
 from models.prestamos import PrestamosDB
 from models.recibos import RecibosDB, RecibosDetalleDB
 from models.salarios import SalariosDB
