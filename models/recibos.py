@@ -14,7 +14,7 @@ class RecibosDB(Base):
     __tablename__ = 'recibos'
 
     id_recibo = Column(Integer, primary_key=True, index=True)
-    id_emplado = Column(Integer, ForeignKey(EmpleadosDB.id_empleado))
+    id_empleado = Column(Integer, ForeignKey(EmpleadosDB.id_empleado))
     id_dispersion = Column(Integer, ForeignKey(DispersionesDB.id_dispersion))
     monto = Column(Float)
     empleado = relationship('EmpleadosDB', lazy='joined')
@@ -45,7 +45,7 @@ class RecibosDetalleDB(Base):
                    nullable=True)
     monto = Column(Float,
                    nullable=False)
-    ajuste = relationship('AjustesDB', lazy='joined')
-    cuenta = relationship('CuentasDB', lazy='joined')
-    prestamo = relationship('PrestamosDB', lazy='joined')
-    salario = relationship('SalariosDB', lazy='joined')
+    ajuste = relationship('AjustesDB', lazy='joined', join_depth=1)
+    cuenta = relationship('CuentasDB', lazy='joined', join_depth=1)
+    prestamo = relationship('PrestamosDB', lazy='joined', join_depth=1)
+    salario = relationship('SalariosDB', lazy='joined', join_depth=1)

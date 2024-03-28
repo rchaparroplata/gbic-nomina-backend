@@ -43,7 +43,7 @@ class ReciboOut(Recibo):
             return ' '.join([v.nombre, v.paterno, v.materno])
         return v  # pragma: no cover
 
-    @model_validator(mode='after')
+    @model_validator(mode='before')
     def flat_dispersion(self) -> 'ReciboOut':
         self.periodo = self.dispersion.periodo
         self.periodo_fecha = self.dispersion.periodo_fecha

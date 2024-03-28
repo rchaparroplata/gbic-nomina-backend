@@ -63,12 +63,12 @@ def upgrade() -> None:
                     unique=False)
     op.create_table('recibos',
                     sa.Column('id_recibo', sa.Integer(), nullable=False),
-                    sa.Column('id_emplado', sa.Integer(), nullable=True),
+                    sa.Column('id_empleado', sa.Integer(), nullable=True),
                     sa.Column('id_dispersion', sa.Integer(), nullable=True),
                     sa.Column('monto', sa.Float(), nullable=True),
                     sa.ForeignKeyConstraint(['id_dispersion'],
                                             ['dispersiones.id_dispersion'], ),
-                    sa.ForeignKeyConstraint(['id_emplado'],
+                    sa.ForeignKeyConstraint(['id_empleado'],
                                             ['empleados.id_empleado'], ),
                     sa.PrimaryKeyConstraint('id_recibo')
                     )
